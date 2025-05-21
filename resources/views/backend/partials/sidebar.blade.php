@@ -25,6 +25,7 @@
                     <h3>Menu</h3>
                 </li>
 
+                
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('dashboard') ? 'has-link' : '' }}"
                         href="{{ route('dashboard') }}">
