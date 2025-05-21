@@ -1,0 +1,15 @@
+Server creadencials Softvence
+anandkasei.softvencefsd.xyz
+
+
+
+FTP Username: app@puppy.softvencefsd.xyz
+FTP server: ftp.softvencefsd.xyz
+FTP & explicit FTPS port:  21
+FTP password: HPFKgr&(OeV.
+
+database creadencials
+
+password: 5HGbvqifOOKK
+username: softvencefsd_puppy
+
