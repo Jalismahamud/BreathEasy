@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('account_id')->nullable()->unique();
-            $table->string('name')->nullable();
-            $table->string('email')->nullable()->unique();
-            $table->string('password')->nullable();
+            $table->string('f_name')->nullable();
+            $table->string('l_name')->nullable();
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('phone')->nullable();
             $table->string('otp')->nullable();
             $table->longText('avatar')->nullable();
-            $table->string('country')->nullable();
-            $table->longText('description')->nullable();
             $table->enum('role', ['user', 'admin'])->default('user');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->boolean('is_otp_verified')->default(false);

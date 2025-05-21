@@ -27,26 +27,18 @@ class UserProfileController extends Controller
                 return $this->error([], 'User not found.', 200);
             }
 
-            if ($user->role === 'user') {
-                $userData = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'avatar' => $user->avatar,
-                ];
-            } else {
-                $userData = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'country' => $user->country,
-                    'description' => $user->description,
-                    'avatar' => $user->avatar,
-                ];
-            }
+            $userData = [
+                'id' => $user->id,
+                'f_name' => $user->f_name,
+                'l_name' => $user->l_name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'avatar' => $user->avatar,
+                'role' => $user->role,
+                'status' => $user->status,
+            ];
 
-
-
-            return $this->success($userData, 'User Profile Retrived successfull', 200);
+            return $this->success($userData, 'User Profile Retrieved successfully', 200);
         } catch (Exception $e) {
             return $this->error([], $e->getMessage(), 500);
         }
@@ -57,9 +49,10 @@ class UserProfileController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name'        => ['nullable', 'string', 'max:255'],
-                'country'     => ['nullable', 'string', 'max:255'],
-                'description' => ['nullable', 'string'],
+                'f_name' => ['nullable', 'string', 'max:255'],
+                'l_name' => ['nullable', 'string', 'max:255'],
+                'phone'  => ['nullable', 'string', 'max:255'],
+                'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:5120'],
             ]);
 
             if ($validator->fails()) {
@@ -69,28 +62,28 @@ class UserProfileController extends Controller
             $user = auth('api')->user();
             $data = $validator->validated();
 
-            $updatableFields = ['name'];
-            if ($user->role !== 'user') {
-                $updatableFields = array_merge($updatableFields, ['country', 'description']);
+        
+            if ($request->hasFile('avatar')) {
+                if ($user->avatar) {
+                    Helper::deleteAvatar($user->avatar);
+                }
+                $image = $request->file('avatar');
+                $imagePath = Helper::uploadImage($image, 'profile');
+                $data['avatar'] = $imagePath;
             }
 
-            $filteredData = collect($data)->only($updatableFields)->toArray();
-
-            $user->update($filteredData);
+            $user->update($data);
 
             $userData = [
-                'id'   => $user->id,
-                'name' => $user->name,
+                'id' => $user->id,
+                'f_name' => $user->f_name,
+                'l_name' => $user->l_name,
+                'phone' => $user->phone,
+                'avatar' => $user->avatar,
             ];
-
-            if ($user->role !== 'user') {
-                $userData['country']     = $user->country;
-                $userData['description'] = $user->description;
-            }
 
             return $this->success($userData, 'Profile updated successfully.', 200);
         } catch (Exception $e) {
-
             Log::error('Profile Update Error: ' . $e->getMessage());
             return $this->error([], 'Something went wrong.', 500);
         }
@@ -115,43 +108,6 @@ class UserProfileController extends Controller
             return $this->success(['Password updated successfully'], 'Password updated successfully.', 200);
         } catch (Exception $e) {
             return $this->error([], $e->getMessage(), 500);
-        }
-    }
-
-    public function updateAvatar(Request $request)
-    {
-        try {
-            
-             $validator = Validator::make($request->all(), [
-               'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:5120'],
-            ]);
-
-            if ($validator->fails()) {
-                return $this->error([], $validator->errors()->first(), 200);
-            }
-
-            $user = Auth::user();
-
-            if ($user->avatar) {
-
-                Helper::deleteAvatar($user->avatar);
-            }
-
-            if ($request->hasFile('avatar')) {
-                $image = $request->file('avatar');
-                $imagePath = Helper::uploadImage($image, 'profile');
-                $user->avatar = $imagePath;
-            }
-
-            $user->save();
-
-            $updatedUser = User::select('id', 'avatar')->find(auth('api')->id());
-
-            return $this->success($updatedUser, 'Avatar updated successfully.', 200);
-        } catch (Exception $e) {
-
-            Log::info($e->getMessage());
-            return $this->error([], 'An unexpected error occurred. Please try again.', 500);
         }
     }
 

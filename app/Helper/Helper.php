@@ -42,7 +42,20 @@ class Helper
         return false;
     }
 
-    
+    public static function deleteAvatar($filePath)
+    {
+        if (! $filePath) {
+            return false;
+        }
 
-   
+        $relativePath = str_replace(asset('/'), '', $filePath);
+        $fullPath     = public_path($relativePath);
+
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+            return true;
+        }
+
+        return false;
+    }
 }

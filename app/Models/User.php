@@ -24,13 +24,12 @@ class User extends Authenticatable implements JWTSubject
     }
 
     protected $fillable = [
-        'account_id',
-        'name',
+        'f_name',
+        'l_name',
         'email',
         'password',
+        'phone',
         'avatar',
-        'country',
-        'description',
         'otp',
         'is_otp_verified',
         'otp_expires_at',
@@ -75,23 +74,4 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
-    public function posts()
-    {
-        return $this->hasMany(Post::class, 'user_id', 'id');
-    }
-
-    public function comments()
-    {
-        return $this->hasMany(PostComment::class, 'user_id', 'id');
-    }
-
-    public function animals()
-    {
-        return $this->hasMany(Animal::class, 'user_id', 'id');
-    }
-
-    public function latestAnimal()
-    {
-        return $this->hasOne(Animal::class, 'user_id', 'id')->latestOfMany();
-    }
 }

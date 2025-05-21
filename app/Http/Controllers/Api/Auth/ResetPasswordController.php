@@ -134,4 +134,32 @@ class ResetPasswordController extends Controller
             return $this->error([], $e->getMessage(), 500);
         }
     }
+
+    public function resendCode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error([], $validator->errors()->first(), 422);
+        }
+
+        try {
+            $user = User::where('email', $request->email)->first();
+            $otp = rand(10000, 99999);
+
+            $user->update([
+                'otp' => $otp,
+                'otp_expires_at' => Carbon::now()->addMinutes(5),
+            ]);
+
+            // Mail::to($user->email)->send(new SendOtpMail($otp));
+
+            return $this->success(['otp' => $otp], 'OTP resent successfully.', 200);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return $this->error([], $e->getMessage(), 500);
+        }
+    }
 }
