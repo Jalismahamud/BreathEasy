@@ -2,12 +2,14 @@
 
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Backend\ApiFaqController;
 use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 
 
+Route::get('/faqs', [ApiFaqController::class, 'faqs']);
 Route::get('privacy-policy', [DynamicPageController::class, 'privacyPolicy']);
 Route::get('terms-and-condition', [DynamicPageController::class, 'termsAndConditions']);
 
