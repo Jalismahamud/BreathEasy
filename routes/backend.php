@@ -2,11 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Web\Backend\FaqController;
 use App\Http\Controllers\Web\Backend\UserListController;
 use App\Http\Controllers\Web\Backend\DashboardController;
 use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
-use App\Http\Controllers\Web\Backend\Settings\ProfileController;
 
+use App\Http\Controllers\Web\Backend\Settings\ProfileController;
 use App\Http\Controllers\Web\Backend\Settings\SettingController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 use App\Http\Controllers\Web\Backend\Settings\MailSettingController;
@@ -69,5 +70,17 @@ Route::controller(DynamicPageController::class)->group(function () {
     Route::put('/dynamic-page/update/{id}', 'update')->name('admin.dynamic_page.update');
     Route::post('/dynamic-page/status/{id}', 'status')->name('admin.dynamic_page.status');
     Route::delete('/dynamic-page/destroy/{id}', 'destroy')->name('admin.dynamic_page.destroy');
+});
+
+
+
+Route::controller(FaqController::class)->group(function () {
+    Route::get('/faq', 'index')->name('admin.faq.index');
+    Route::get('/faq/create', 'create')->name('admin.faq.create');
+    Route::post('/faq', 'store')->name('admin.faq.store');
+    Route::get('/faq/edit/{id}', 'edit')->name('admin.faq.edit');
+    Route::put('/faq/{id}', 'update')->name('admin.faq.update');
+    Route::post('/faq/status/{id}', 'status')->name('admin.faq.status');
+    Route::delete('/faq/{id}', 'destroy')->name('admin.faq.destroy');
 });
 

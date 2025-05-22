@@ -25,7 +25,7 @@
                     <h3>Menu</h3>
                 </li>
 
-                
+
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('dashboard') ? 'has-link' : '' }}"
                         href="{{ route('dashboard') }}">
@@ -37,7 +37,7 @@
                         <span class="side-menu__label">Dashboard</span>
                     </a>
                 </li>
-            
+
                 <h3>Components</h3>
                 </li>
 
@@ -61,7 +61,20 @@
                     <h3>Component</h3>
                 </li>
 
-              
+                <li class="slide">
+                    <a class="side-menu__item {{ request()->routeIs('faq') ? 'has-link' : '' }}"
+                        href="{{ route('admin.faq.index') }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            class="side-menu__icon" viewBox="0 0 16 16">
+                            <path
+                                d="M8 1a7 7 0 1 0 7 7A7 7 0 0 0 8 1zm0 1.5a5.5 5.5 0 1 1-5.5 5.5A5.507 5.507 0 0 1 8 2.5zm-.25 4.75a.75.75 0 1 1 1.5 0v1a.75.75 0 0 1-1.5 0v-1zm.25 4.25a.75.75 0 1 1 0-1.5h.002a.75.75 0 1 1 0 1.5H8z" />
+                        </svg>
+                        <span class="side-menu__label">FAQ</span>
+                    </a>
+                </li>
+
+
+
 
                 <li class="slide">
                     <a class="side-menu__item" data-bs-toggle="slide" href="#">
@@ -80,7 +93,7 @@
                         <li><a href="{{ route('setting.mail.index') }}" class="slide-item">Mail Settings</a></li>
                         <li><a href="{{ route('admin.dynamic_page.index') }}" class="slide-item">Dynamic Page</a>
                         </li>
-                   
+
                 </li>
             </ul>
             </li>
