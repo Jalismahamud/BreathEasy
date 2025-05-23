@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Backend\ApiFaqController;
+use App\Http\Controllers\Api\Backend\ApiPostController;
 use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
@@ -35,6 +36,12 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::delete('/delete-profile', [UserProfileController::class, 'deleteProfile']);
     Route::post('/logout', [AuthenticationController::class, 'logout']);
+    
+    
+    
+    Route::get('/posts',[ApiPostController::class, 'allPosts']);
+    Route::post('/post/create',[ApiPostController::class, 'createPost']);
+    Route::delete('/post/delete/{post_id}',[ApiPostController::class, 'deletePost']);
 
 
 });

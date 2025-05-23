@@ -6,6 +6,11 @@ use Exception;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use App\Models\Post;
+use App\Models\PostImage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class Helper
 {
@@ -58,4 +63,6 @@ class Helper
 
         return false;
     }
+
+    
 }
