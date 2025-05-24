@@ -11,6 +11,7 @@ class PostReact extends Model
         'user_id',
         'like',
         'comment',
+        'parent_comment_id',
     ];
 
     protected $hidden = [
@@ -26,5 +27,15 @@ class PostReact extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(PostReact::class, 'parent_comment_id');
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(PostReact::class, 'parent_comment_id');
     }
 }

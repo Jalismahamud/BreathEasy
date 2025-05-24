@@ -123,13 +123,13 @@ class AuthenticationController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->error([], $validator->errors()->first(), 200);
+                return $this->error([], $validator->errors()->first(), 422);
             }
 
             $credentials = $validator->validated();
 
             if (!$token = auth('api')->attempt($credentials)) {
-                return $this->error([], 'Invalid email or password.', 200);
+                return $this->error([], 'Invalid email or password.', 401);
             }
 
             $user = auth('api')->user();
@@ -177,7 +177,7 @@ class AuthenticationController extends Controller
         try {
             $user = User::where('email', $request->email)->first();
             if (!$user) {
-                return $this->error([], 'User not found', 200);
+                return $this->error([], 'User not found', 404);
             }
 
             $otp = rand(10000, 99999);
