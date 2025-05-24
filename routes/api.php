@@ -19,6 +19,7 @@ Route::group(['middleware' => 'guest:api', ], function () {
    
     Route::post('/login', [AuthenticationController::class, 'login']);
     Route::post('/register', [AuthenticationController::class, 'register']);
+    Route::post('/register-otp-verify', [AuthenticationController::class, 'registrationVerifyOtp']);
     Route::post('/forgot-password', [ResetPasswordController::class, 'forgotPassword']);
     Route::post('/resend-code', [ResetPasswordController::class, 'resendCode']);
     Route::post('/verify-otp', [ResetPasswordController::class, 'VerifyOTP']);
@@ -42,6 +43,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/posts',[ApiPostController::class, 'allPosts']);
     Route::post('/post/create',[ApiPostController::class, 'createPost']);
     Route::delete('/post/delete/{post_id}',[ApiPostController::class, 'deletePost']);
+    Route::post('/post/like/{post_id}',[ApiPostController::class, 'likePost']);
 
 
 });
