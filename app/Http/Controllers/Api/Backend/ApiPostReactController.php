@@ -93,7 +93,6 @@ class ApiPostReactController extends Controller
                 ->first();
 
             if ($react) {
-               
                 $react->like = $react->like ? 0 : 1;
                 $react->save();
                 $message = $react->like ? 'Post liked.' : 'Like removed.';
@@ -106,7 +105,11 @@ class ApiPostReactController extends Controller
                 $message = 'Post liked.';
             }
             DB::commit();
-            return $this->success($react, $message, 200);
+            $response = [
+                'post_id' => $react->post_id,
+                'like' => $react->like,
+            ];
+            return $this->success($response, $message, 200);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
