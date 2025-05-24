@@ -104,12 +104,9 @@ class AuthenticationController extends Controller
         $userData = [
 
             'id' => $user['id'],
-            'name' => $user['f_name'] . ' ' . $user['l_name'],
             'email' => $user['email'],
-            'address' => $user['address'],
-            'avatar' => $user->avatar,
+            'phone' => $user['phone'],
             'role' => $user['role'] ?? null,
-            'created_at' => Carbon::parse($user['created_at'])->format('Y-m-d H:i:s'),
             'token' => $token,
         ];
 
