@@ -40,10 +40,7 @@ class ApiPostController extends Controller
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
-                    'is_liked' => $post->reacts->contains(function ($react) {
-                        return $react->user_id === auth('api')->id() && $react->like == 1;
-                    }) ? 1 : 0,
-
+                    'is_like' => $post->reacts()->where('user_id', auth('api')->id())->where('like', true)->exists(),
                     'user' => [
                         'id' => $post->user->id,
                         'name' => $post->user->f_name . ' ' . $post->user->l_name,
@@ -81,9 +78,7 @@ class ApiPostController extends Controller
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->where('like', 1)->count(),
-                    'is_liked' => $post->reacts->contains(function ($react) {
-                        return $react->user_id === auth('api')->id() && $react->like == 1;
-                    }) ? 1 : 0,
+                    'is_like' => $post->reacts()->where('user_id', auth('api')->id())->where('like', true)->exists(),
                     'user' => [
                         'id' => $post->user->id,
                         'name' => $post->user->f_name . ' ' . $post->user->l_name,
