@@ -118,7 +118,7 @@ class AuthenticationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'email' => ['required', 'string', 'email', 'exists:users,email'],
+                'email' => ['required', 'string', 'email'],
                 'password' => ['required', 'string', 'min:8'],
             ]);
 
@@ -127,6 +127,15 @@ class AuthenticationController extends Controller
             }
 
             $credentials = $validator->validated();
+
+            $user = User::where('email', $credentials['email'])->first();
+            if (!$user) {
+                return $this->error([], 'Email is incorrect or not found in our database.', 404);
+            }
+
+            if (!Hash::check($credentials['password'], $user->password)) {
+                return $this->error([], 'Password is incorrect.', 401);
+            }
 
             if (!$token = auth('api')->attempt($credentials)) {
                 return $this->error([], 'Invalid email or password.', 401);
