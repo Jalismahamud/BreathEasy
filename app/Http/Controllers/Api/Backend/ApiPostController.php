@@ -35,7 +35,9 @@ class ApiPostController extends Controller
                 return [
                     'id' => $post->id,
                     'message' => $post->message,
-                    'image' => $post->images->isNotEmpty() ? url($post->images->pluck('image')->first()) : null,
+                    'images' => $post->images->map(function($img) {
+                        return url($img->image);
+                    }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
                     'user' => [
