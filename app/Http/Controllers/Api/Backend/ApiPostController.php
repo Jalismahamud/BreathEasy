@@ -40,6 +40,45 @@ class ApiPostController extends Controller
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
+                    'is_liked' => $post->reacts->where('user_id', auth('api')->id())->count() > 0,
+                    'user' => [
+                        'id' => $post->user->id,
+                        'name' => $post->user->f_name . ' ' . $post->user->l_name,
+                        'avatar' => $post->user->avatar,
+                    ],
+                ];
+            });
+            return $this->success($response, 'Posts retrieved successfully.', 200);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return $this->error([], $e->getMessage(), 500);
+        }
+    }
+
+
+     public function myPosts()
+    {
+        try {
+            $posts = Post::with([
+                'user:id,f_name,l_name,avatar',
+                'images:id,image,post_id',
+                'reacts:id,like,comment,post_id'
+            ])->where('user_id', auth('api')->id())->latest()->get();
+
+            if ($posts->isEmpty()) {
+                return $this->success([], 'No posts found.', 200);
+            }
+
+            $response = $posts->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'message' => $post->message,
+                    'images' => $post->images->map(function($img) {
+                        return url($img->image);
+                    }),
+                    'created_at' => $post->created_at->diffForHumans(),
+                    'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
+                    'is_liked' => $post->reacts->where('user_id', auth('api')->id())->count() > 0,
                     'user' => [
                         'id' => $post->user->id,
                         'name' => $post->user->f_name . ' ' . $post->user->l_name,
