@@ -35,12 +35,15 @@ class ApiPostController extends Controller
                 return [
                     'id' => $post->id,
                     'message' => $post->message,
-                    'images' => $post->images->map(function($img) {
+                    'images' => $post->images->map(function ($img) {
                         return url($img->image);
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
-                    'is_liked' => $post->reacts->where('user_id', auth('api')->id())->where('like', 1)->count() > 0 ? 1 : 0,
+                    'is_liked' => $post->reacts->contains(function ($react) {
+                        return $react->user_id === auth('api')->id() && $react->like == 1;
+                    }) ? 1 : 0,
+
                     'user' => [
                         'id' => $post->user->id,
                         'name' => $post->user->f_name . ' ' . $post->user->l_name,
@@ -56,7 +59,7 @@ class ApiPostController extends Controller
     }
 
 
-     public function myPosts()
+    public function myPosts()
     {
         try {
             $posts = Post::with([
@@ -73,12 +76,15 @@ class ApiPostController extends Controller
                 return [
                     'id' => $post->id,
                     'message' => $post->message,
-                    'images' => $post->images->map(function($img) {
+                    'images' => $post->images->map(function ($img) {
                         return url($img->image);
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
-                    'is_liked' => $post->reacts->where('user_id', auth('api')->id())->where('like', 1)->count() > 0 ? 1 : 0,
+                    'is_liked' => $post->reacts->contains(function ($react) {
+                        return $react->user_id === auth('api')->id() && $react->like == 1;
+                    }) ? 1 : 0,
+
                     'user' => [
                         'id' => $post->user->id,
                         'name' => $post->user->f_name . ' ' . $post->user->l_name,
@@ -181,7 +187,7 @@ class ApiPostController extends Controller
         DB::beginTransaction();
         try {
             $post = Post::find($post_id);
-           
+
             if (!$post) {
                 return $this->error([], 'Post not found.', 404);
             }
