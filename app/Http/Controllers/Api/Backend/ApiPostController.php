@@ -24,7 +24,7 @@ class ApiPostController extends Controller
             $posts = Post::with([
                 'user:id,f_name,l_name,avatar',
                 'images:id,image,post_id',
-                'reacts:id,like,comment,post_id'
+                'reacts:id,like,comment,post_id,user_id'
             ])->latest()->get();
 
             if ($posts->isEmpty()) {
@@ -65,7 +65,7 @@ class ApiPostController extends Controller
             $posts = Post::with([
                 'user:id,f_name,l_name,avatar',
                 'images:id,image,post_id',
-                'reacts:id,like,comment,post_id'
+                'reacts:id,like,comment,post_id,user_id'
             ])->where('user_id', auth('api')->id())->latest()->get();
 
             if ($posts->isEmpty()) {
@@ -80,11 +80,10 @@ class ApiPostController extends Controller
                         return url($img->image);
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
-                    'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
+                    'like' => $post->reacts->where('like', 1)->count(),
                     'is_liked' => $post->reacts->contains(function ($react) {
                         return $react->user_id === auth('api')->id() && $react->like == 1;
                     }) ? 1 : 0,
-
                     'user' => [
                         'id' => $post->user->id,
                         'name' => $post->user->f_name . ' ' . $post->user->l_name,
@@ -92,6 +91,7 @@ class ApiPostController extends Controller
                     ],
                 ];
             });
+
             return $this->success($response, 'Posts retrieved successfully.', 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
