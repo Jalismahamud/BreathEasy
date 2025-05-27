@@ -74,30 +74,43 @@ class ApiWaterController extends Controller
     //     return $this->success([], 'Entry deleted successfully');
     // }
 
-    public function deleteSpecificAmount($amount)
+
+
+    public function deleteIntake(Request $request)
     {
         $userId = auth('api')->id();
-        $today = now('UTC')->toDateString();
+        $today  = now('UTC')->toDateString();
 
-      
-        if (!in_array($amount, [100, 200, 300])) {
-            return $this->error([], 'Only 100, 200, or 300 ml can be deleted.', 422);
+        // Validate incoming amount
+        $validator = Validator::make($request->all(), [
+            'amount' => 'required|integer|in:100,200,300',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error([], $validator->errors()->first(), 422);
         }
 
-        $entries = WaterIntake::where('user_id', $userId)
-            ->where('date', $today)
-            ->orderBy('created_at', 'asc') 
-            ->get();
-
+        $amount    = $request->input('amount');
         $remaining = $amount;
 
+       
+        $entries = WaterIntake::where('user_id', $userId)
+            ->where('date',    $today)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        
         foreach ($entries as $entry) {
-            if ($remaining <= 0) break;
+            if ($remaining <= 0) {
+                break;
+            }
 
             if ($entry->amount <= $remaining) {
+               
                 $remaining -= $entry->amount;
                 $entry->delete();
             } else {
+               
                 $entry->amount -= $remaining;
                 $entry->save();
                 $remaining = 0;
@@ -105,11 +118,12 @@ class ApiWaterController extends Controller
         }
 
         if ($remaining > 0) {
-            return $this->error([], "Unable to remove full $amount ml. Only partial intake was deleted.", 400);
+            return $this->error([],"Unable to remove the full {$amount}ml; only removed " . ($amount - $remaining) . "ml.",400);
         }
 
-        return $this->success([], "$amount ml water intake deleted successfully.");
+        return $this->success([], "{$amount}ml water intake deleted successfully.");
     }
+
 
 
 
