@@ -34,6 +34,7 @@ class ApiWaterController extends Controller
             'goal' => $goal->goal,
             'intake' => $total,
             'percent' => round(($total / $goal->goal) * 100),
+            //'percent' => min(100, round(($total / $goal->goal) * 100)),
             'entries' => $intakes->map(function ($i) {
                 return [
                     'id' => $i->id,
