@@ -23,22 +23,31 @@ class ApiNoteController extends Controller
                 return $this->success([], 'No notes found.', 404);
             }
 
-            $response = $notes->map(function ($note) {
-                return [
-                    'id' => $note->id,
-                    'note' => $note->note,
-                    'date' => $note->created_at->format('M d, Y'),
-                    'time' => $note->created_at->format('h:i A'),
-                ];
+            $groupedNotes = $notes->groupBy(function ($note) {
+                return $note->created_at->format('M d, Y');
             });
+
+            $response = $groupedNotes->map(function ($group, $date) {
+                return [
+                    'date' => $date,
+                    'notes' => $group->map(function ($note) {
+                        return [
+                            'id' => $note->id,
+                            'note' => $note->note,
+                            'time' => $note->created_at->format('h:i A'),
+                        ];
+                    })->values(),
+                ];
+            })->values(); 
 
             return $this->success($response, 'Notes retrieved successfully.', 200);
         } catch (\Exception $e) {
-
+            
             Log::error($e->getMessage());
             return $this->error([], 'Something went wrong.', 500);
         }
     }
+
 
     public function store(Request $request)
     {

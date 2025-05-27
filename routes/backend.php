@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Web\Backend\FaqController;
+use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Web\Backend\UserListController;
 use App\Http\Controllers\Web\Backend\DashboardController;
-use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
 
+use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
 use App\Http\Controllers\Web\Backend\Settings\ProfileController;
 use App\Http\Controllers\Web\Backend\Settings\SettingController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
@@ -30,6 +31,21 @@ Route::controller(ProfileController::class)->group(function () {
     Route::put('setting/profile/update/Password', 'UpdatePassword')->name('setting.profile.update.Password');
     Route::post('setting/profile/update/Picture', 'UpdateProfilePicture')->name('update.profile.picture');
 });
+
+
+Route::prefix('category')->name('admin.category.')->group(function () {
+    Route::get('/', [CategoryController::class, 'index'])->name('index');             
+    Route::post('/store', [CategoryController::class, 'store'])->name('store');      
+    Route::get('/edit/{id}', [CategoryController::class, 'edit'])->name('edit');     
+    Route::put('/update/{id}', [CategoryController::class, 'update'])->name('update');
+    Route::delete('/delete/{id}', [CategoryController::class, 'destroy'])->name('destroy'); 
+    Route::post('/status/{id}', [CategoryController::class, 'status'])->name('status');     
+});
+
+
+
+
+
 
 //! Route for Mail Settings
 Route::controller(MailSettingController::class)->group(function () {
