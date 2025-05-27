@@ -14,7 +14,7 @@ class ApiWaterController extends Controller
 {
     use ApiResponse;
 
-   
+
     public function index()
     {
         $userId = auth('api')->id();
@@ -35,19 +35,12 @@ class ApiWaterController extends Controller
             'intake' => $total,
             'percent' => round(($total / $goal->goal) * 100),
             //'percent' => min(100, round(($total / $goal->goal) * 100)),
-            'entries' => $intakes->map(function ($i) {
-                return [
-                    'id' => $i->id,
-                    'amount' => $i->amount,
-                    'time' => $i->created_at->format('h:i A')
-                ];
-            })
         ];
 
         return $this->success($progress, 'Daily water intake fetched');
     }
 
-    
+
     public function addIntake(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -68,17 +61,54 @@ class ApiWaterController extends Controller
     }
 
 
-    public function deleteIntake($id)
-    {
-        $entry = WaterIntake::where('id', $id)->where('user_id', auth('api')->id())->first();
+    // public function deleteIntake($id)
+    // {
+    //     $entry = WaterIntake::where('id', $id)->where('user_id', auth('api')->id())->first();
 
-        if (!$entry) {
-            return $this->error([], 'Entry not found', 404);
+    //     if (!$entry) {
+    //         return $this->error([], 'Entry not found', 404);
+    //     }
+
+    //     $entry->delete();
+
+    //     return $this->success([], 'Entry deleted successfully');
+    // }
+
+    public function deleteSpecificAmount($amount)
+    {
+        $userId = auth('api')->id();
+        $today = now('UTC')->toDateString();
+
+      
+        if (!in_array($amount, [100, 200, 300])) {
+            return $this->error([], 'Only 100, 200, or 300 ml can be deleted.', 422);
         }
 
-        $entry->delete();
+        $entries = WaterIntake::where('user_id', $userId)
+            ->where('date', $today)
+            ->orderBy('created_at', 'asc') 
+            ->get();
 
-        return $this->success([], 'Entry deleted successfully');
+        $remaining = $amount;
+
+        foreach ($entries as $entry) {
+            if ($remaining <= 0) break;
+
+            if ($entry->amount <= $remaining) {
+                $remaining -= $entry->amount;
+                $entry->delete();
+            } else {
+                $entry->amount -= $remaining;
+                $entry->save();
+                $remaining = 0;
+            }
+        }
+
+        if ($remaining > 0) {
+            return $this->error([], "Unable to remove full $amount ml. Only partial intake was deleted.", 400);
+        }
+
+        return $this->success([], "$amount ml water intake deleted successfully.");
     }
 
 

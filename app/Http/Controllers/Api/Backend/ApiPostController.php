@@ -28,7 +28,7 @@ class ApiPostController extends Controller
             ])->latest()->get();
 
             if ($posts->isEmpty()) {
-                return $this->success([], 'No posts found.', 404);
+                return $this->success([], 'No posts found.', 200);
             }
 
             $response = $posts->map(function ($post) {
@@ -40,7 +40,6 @@ class ApiPostController extends Controller
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
-                    'comment' => $post->reacts->count('comment') > 0 ? $post->reacts->count('comment') : 0,
                     'is_like' => $post->reacts()->where('user_id', auth('api')->id())->where('like', true)->exists(),
                     'user' => [
                         'id' => $post->user->id,
@@ -79,7 +78,6 @@ class ApiPostController extends Controller
                     }),
                     'created_at' => $post->created_at->diffForHumans(),
                     'like' => $post->reacts->where('like', 1)->count(),
-                    'comment' => $post->reacts->whereNotNull('comment')->count(),
                     'is_like' => $post->reacts()->where('user_id', auth('api')->id())->where('like', true)->exists(),
                     'user' => [
                         'id' => $post->user->id,
