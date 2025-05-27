@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Backend\ApiPostController;
 use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
+use App\Http\Controllers\Api\Backend\ApiNoteController;
 use App\Http\Controllers\Api\Backend\ApiPostReactController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 
@@ -51,6 +52,11 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/post/comment',[ApiPostReactController::class, 'createComment']);
     Route::post('/post/comment/reply',[ApiPostReactController::class, 'replyComment']);
     Route::post('/post/react',[ApiPostReactController::class, 'toggleLike']);
+
+
+   Route::get('/my-notes',[ApiNoteController::class, 'index']);
+   Route::post('/note/create', [ApiNoteController::class, 'store']);
+   Route::delete('/note/delete/{note_id}', [ApiNoteController::class, 'delete']);
 
 
 });

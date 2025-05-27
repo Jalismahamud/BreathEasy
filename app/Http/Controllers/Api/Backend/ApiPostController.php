@@ -28,7 +28,7 @@ class ApiPostController extends Controller
             ])->latest()->get();
 
             if ($posts->isEmpty()) {
-                return $this->success([], 'No posts found.', 200);
+                return $this->success([], 'No posts found.', 404);
             }
 
             $response = $posts->map(function ($post) {
