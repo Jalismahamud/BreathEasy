@@ -70,7 +70,7 @@ class CategoryController extends Controller
 
         $validate = $request->validate([
             'title' => 'required|unique:categories,title',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
 
         try {
@@ -104,31 +104,32 @@ class CategoryController extends Controller
     }
 
 
-    public function update(Request $request, $id)
-    {
-        $validate = $request->validate([
-            'title' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        public function update(Request $request, $id)
+        {
+            $validate = $request->validate([
+                'title' => 'required',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            ]);
 
-        try {
-            $category = Category::findOrFail($id);
+            try {
+                $category = Category::findOrFail($id);
 
-            if ($request->hasFile('image')) {
-                if ($category->image && file_exists(public_path($category->image))) {
-                    Helper::deleteImage(public_path($category->image));
+                if ($request->hasFile('image')) {
+                    if ($category->image && file_exists(public_path($category->image))) {
+                        Helper::deleteImage($category->image);
+
+                    }
+                    $validate['image']  = Helper::uploadImage($request->image, 'category');
                 }
-                $validate['image']  = Helper::uploadImage($request->image, 'category');
+
+                $category->update($validate);
+                session()->put('t-success', 'Category updated successfully');
+            } catch (Exception $e) {
+                session()->put('t-error', $e->getMessage());
             }
 
-            $category->update($validate);
-            session()->put('t-success', 'Category updated successfully');
-        } catch (Exception $e) {
-            session()->put('t-error', $e->getMessage());
+            return redirect()->route('admin.category.index');
         }
-
-        return redirect()->route('admin.category.index');
-    }
 
 
     public function destroy(string $id)

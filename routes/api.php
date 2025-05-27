@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Backend\ApiNoteController;
 use App\Http\Controllers\Api\Backend\ApiPostController;
 use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Backend\ApiWaterController;
+use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
 use App\Http\Controllers\Api\Backend\ApiPostReactController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 Route::get('/faqs', [ApiFaqController::class, 'faqs']);
 Route::get('privacy-policy', [DynamicPageController::class, 'privacyPolicy']);
 Route::get('terms-and-condition', [DynamicPageController::class, 'termsAndConditions']);
+Route::get('/category',[CategoryController::class, 'category']);
 
 
 Route::group(['middleware' => 'guest:api',], function () {
