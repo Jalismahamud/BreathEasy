@@ -11,21 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('moods', function (Blueprint $table) {
+        Schema::create('water_goals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('mood', ['terrible', 'bad', 'okey', 'good', 'excellent'])->default('okey');
-            $table->date('date');
-            $table->unique(['user_id', 'date']);
+            $table->integer('goal')->default(2500); 
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('moods');
+        Schema::dropIfExists('water_goals');
     }
 };

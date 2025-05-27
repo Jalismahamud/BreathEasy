@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Mood extends Model
+class WaterGoal extends Model
 {
-    protected $fillable = ['user_id' , 'mood','date'];
+    protected $fillable = ['user_id', 'goal'];
 
-    protected $hidden = ['created_at','updated_at'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     public function user()
     {

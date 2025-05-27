@@ -25,14 +25,21 @@ class ApiMoodController extends Controller
 
         try {
             $userId = auth('api')->id();
+            $todayUtc = now('UTC')->toDateString();
 
             $mood = Mood::updateOrCreate(
-                ['user_id' => $userId],
-                ['mood' => $request->mood]
+                [
+                    'user_id' => $userId,
+                    'date' => $todayUtc
+                ],
+                [
+                    'mood' => $request->mood
+                ]
             );
 
             return $this->success($mood, 'Mood updated successfully.', 200);
         } catch (\Exception $e) {
+            
             Log::error($e->getMessage());
             return $this->error([], 'Something went wrong.', 500);
         }
