@@ -41,48 +41,44 @@ class DailyVideoController extends Controller
     }
 
     public function createOrUpdate(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'video' => 'required|file',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'video' => 'required|file|mimetypes:video/mp4',
+    ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        try {
-            $today = Carbon::now('UTC')->startOfDay();
-            $tomorrow = Carbon::now('UTC')->addDay()->startOfDay();
-
-            $dailyVideo = DailyVideo::whereBetween('created_at', [$today, $tomorrow])->first();
-
-            if ($request->hasFile('video')) {
-                $videoPath = Helper::uploadImage($request->file('video'), 'daily-videos');
-
-                if ($dailyVideo) {
-
-                    if ($dailyVideo->video && file_exists(public_path($dailyVideo->video))) {
-                        Helper::deleteImage($dailyVideo->video);
-                    }
-
-                    $dailyVideo->update([
-                        'video' => $videoPath,
-                    ]);
-
-                    session()->put('t-success', 'Daily video updated successfully.');
-                } else {
-                    DailyVideo::create([
-                        'video' => $videoPath,
-                    ]);
-
-                    session()->put('t-success', 'Daily video created successfully.');
-                }
-            }
-        } catch (Exception $e) {
-            Log::error('Daily Video Error: ' . $e->getMessage());
-            session()->put('t-error', 'Something went wrong. Please try again.');
-        }
-
-        return redirect()->back();
+    if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
     }
+
+    try {
+        $today = Carbon::today('UTC');
+        $dailyVideo = DailyVideo::whereDate('created_at', $today)->first();
+
+        if ($request->hasFile('video')) {
+            $videoPath = Helper::uploadImage($request->file('video'), 'daily-videos');
+
+            if ($dailyVideo) {
+                if ($dailyVideo->video && file_exists(public_path($dailyVideo->video))) {
+                    Helper::deleteImage($dailyVideo->video);
+                }
+
+                $dailyVideo->update([
+                    'video' => $videoPath,
+                ]);
+                session()->put('t-success', 'Daily video updated successfully.');
+            } else {
+                DailyVideo::create([
+                    'video' => $videoPath,
+                ]);
+                session()->put('t-success', 'Daily video created successfully.');
+            }
+        }
+    } catch (Exception $e) {
+        Log::error('Daily Video Error: ' . $e->getMessage());
+        session()->put('t-error', 'Something went wrong. Please try again.');
+    }
+
+    return redirect()->back();
+}
+
 }
