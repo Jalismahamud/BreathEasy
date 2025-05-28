@@ -54,7 +54,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::delete('/post/delete/{post_id}', [ApiPostController::class, 'deletePost']);
     Route::post('/post/like/{post_id}', [ApiPostController::class, 'likePost']);
 
-    Route::get('all/comments', [ApiPostReactController::class, 'allComments']);
+    Route::get('/comments', [ApiPostReactController::class, 'allComments']);
     Route::post('/post/comment', [ApiPostReactController::class, 'createComment']);
     Route::post('/post/comment/reply', [ApiPostReactController::class, 'replyComment']);
     Route::post('/post/react', [ApiPostReactController::class, 'toggleLike']);
