@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Web\Backend\UserListController;
 use App\Http\Controllers\Web\Backend\DashboardController;
 
+use App\Http\Controllers\Web\Backend\DailyVideoController;
 use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
 use App\Http\Controllers\Web\Backend\Settings\ProfileController;
 use App\Http\Controllers\Web\Backend\Settings\SettingController;
@@ -43,6 +44,10 @@ Route::prefix('category')->name('admin.category.')->group(function () {
 });
 
 
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('daily-videos', [DailyVideoController::class, 'index'])->name('admin.daily-video.index');
+    Route::post('daily-videos', [DailyVideoController::class, 'createOrUpdate'])->name('admin.daily-video.createOrUpdate');
+});
 
 
 

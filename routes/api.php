@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Models\DailyVideo;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Backend\ApiFaqController;
 use App\Http\Controllers\Api\Backend\ApiMoodController;
@@ -10,10 +11,10 @@ use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Backend\ApiWaterController;
 use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Web\Backend\DailyVideoController;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
 use App\Http\Controllers\Api\Backend\ApiPostReactController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
-
 
 Route::get('/faqs', [ApiFaqController::class, 'faqs']);
 Route::get('privacy-policy', [DynamicPageController::class, 'privacyPolicy']);
@@ -71,6 +72,9 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/water/add', [ApiWaterController::class, 'addIntake']); 
     Route::post('/water/delete', [ApiWaterController::class, 'deleteIntake']); 
     Route::post('/water/goal', [ApiWaterController::class, 'setGoal']);
+
+
+    Route::get('/daily-video',[DailyVideoController::class,'dailyVideo']);
 
 
 
