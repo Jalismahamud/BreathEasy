@@ -25,6 +25,8 @@ class DailyVideoController extends Controller
                 return $this->error([], 'Video not found.', 404);
             }
 
+            $video['video'] = url($video->video);
+
             return $this->success($video, 'Video found.', 200);
         } catch (Exception $e) {
 
