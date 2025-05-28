@@ -69,7 +69,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::get('/water', [ApiWaterController::class, 'index']); 
     Route::post('/water/add', [ApiWaterController::class, 'addIntake']); 
-    Route::post('/water/delete/{id}', [ApiWaterController::class, 'deleteIntake']); 
+    Route::post('/water/delete', [ApiWaterController::class, 'deleteIntake']); 
     Route::post('/water/goal', [ApiWaterController::class, 'setGoal']);
 
 
