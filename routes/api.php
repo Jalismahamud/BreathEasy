@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Backend\ApiWaterController;
 use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\Backend\ApiContentController;
 use App\Http\Controllers\Web\Backend\DailyVideoController;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
 use App\Http\Controllers\Api\Backend\ApiPostReactController;
@@ -75,6 +76,9 @@ Route::group(['middleware' => ['auth:api']], function () {
 
 
     Route::get('/daily-video',[DailyVideoController::class,'dailyVideo']);
+
+
+    Route::get('/hatha-yoga',[ApiContentController::class,'hathaYoga']);
 
 
 

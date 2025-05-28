@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Web\Backend\FaqController;
+use App\Http\Controllers\Web\Backend\ContentController;
 use App\Http\Controllers\Web\Backend\CategoryController;
 use App\Http\Controllers\Web\Backend\UserListController;
-use App\Http\Controllers\Web\Backend\DashboardController;
 
+use App\Http\Controllers\Web\Backend\DashboardController;
 use App\Http\Controllers\Web\Backend\DailyVideoController;
 use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
 use App\Http\Controllers\Web\Backend\Settings\ProfileController;
@@ -47,6 +48,17 @@ Route::prefix('category')->name('admin.category.')->group(function () {
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('daily-videos', [DailyVideoController::class, 'index'])->name('admin.daily-video.index');
     Route::post('daily-videos', [DailyVideoController::class, 'createOrUpdate'])->name('admin.daily-video.createOrUpdate');
+});
+
+
+
+Route::prefix('admin/content')->name('admin.content.')->group(function () {
+    Route::get('/', [ContentController::class, 'index'])->name('index');
+    Route::get('/create', [ContentController::class, 'create'])->name('create');
+    Route::post('/store', [ContentController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [ContentController::class, 'edit'])->name('edit');
+    Route::put('/update/{id}', [ContentController::class, 'update'])->name('update');
+    Route::delete('/destroy/{id}', [ContentController::class, 'destroy'])->name('destroy');
 });
 
 
