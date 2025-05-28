@@ -15,7 +15,41 @@ class ApiPostReactController extends Controller
 {
     use ApiResponse;
 
-   
+    public function allComments()
+    {
+        $comments = PostReact::with(['replies', 'user'])
+            ->whereNull('parent_comment_id')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'comment' => $comment->comment,
+                    'post_id' => $comment->post_id,
+                    'created_at' => $comment->created_at,
+                    'user' => [
+                        'id' => $comment->user->id,
+                        'name' => $comment->user->name,
+                    ],
+                    'replies' => $comment->replies->map(function ($reply) {
+                        return [
+                            'id' => $reply->id,
+                            'comment' => $reply->comment,
+                            'created_at' => $reply->created_at,
+                            'user' => [
+                                'id' => $reply->user->id,
+                                'name' => $reply->user->name,
+                            ],
+                        ];
+                    }),
+                ];
+            });
+
+        return $this->success($comments, 'All comments with replies fetched successfully.');
+    }
+
+
+
     public function createComment(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -44,7 +78,7 @@ class ApiPostReactController extends Controller
         }
     }
 
-    
+
     public function replyComment(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -64,7 +98,7 @@ class ApiPostReactController extends Controller
                 'user_id' => auth('api')->id(),
                 'comment' => $request->comment,
                 'like' => 0,
-                'parent_comment_id' => $request->parent_comment_id, 
+                'parent_comment_id' => $request->parent_comment_id,
             ]);
             DB::commit();
             return $this->success($react, 'Reply added successfully.', 201);
@@ -75,7 +109,7 @@ class ApiPostReactController extends Controller
         }
     }
 
-   
+
     public function toggleLike(Request $request)
     {
         $validator = Validator::make($request->all(), [

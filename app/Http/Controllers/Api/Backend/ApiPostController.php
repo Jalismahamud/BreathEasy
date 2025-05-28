@@ -7,6 +7,7 @@ use App\Models\Post;
 
 use App\Helper\Helper;
 use App\Models\PostImage;
+use App\Models\PostReact;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,43 +19,51 @@ class ApiPostController extends Controller
 {
     use ApiResponse;
 
-    public function allPosts()
+    public function allComments()
     {
         try {
-            $posts = Post::with([
-                'user:id,f_name,l_name,avatar',
-                'images:id,image,post_id',
-                'reacts:id,like,comment,post_id,user_id'
-            ])->latest()->get();
+            $comments = PostReact::with(['replies.user', 'user'])
+                ->whereNull('parent_comment_id')
+                ->latest()
+                ->get();
 
-            if ($posts->isEmpty()) {
-                return $this->success([], 'No posts found.', 200);
+            if ($comments->isEmpty()) {
+                return $this->success([], 'No comments found.', 200);
             }
 
-            $response = $posts->map(function ($post) {
+            $response = $comments->map(function ($comment) {
                 return [
-                    'id' => $post->id,
-                    'message' => $post->message,
-                    'images' => $post->images->map(function ($img) {
-                        return url($img->image);
-                    }),
-                    'created_at' => $post->created_at->diffForHumans(),
-                    'like' => $post->reacts->count('like') > 0 ? $post->reacts->count('like') : 0,
-                    'comment' => $post->reacts->count('comment') > 0 ? $post->reacts->count('comment') : 0,
-                    'is_like' => $post->reacts()->where('user_id', auth('api')->id())->where('like', true)->exists(),
+                    'id' => $comment->id,
+                    'post_id' => $comment->post_id,
+                    'comment' => $comment->comment,
+                    'created_at' => $comment->created_at->diffForHumans(),
                     'user' => [
-                        'id' => $post->user->id,
-                        'name' => $post->user->f_name . ' ' . $post->user->l_name,
-                        'avatar' => $post->user->avatar,
+                        'id' => $comment->user->id,
+                        'name' => $comment->user->name,
+                        'avatar' => $comment->user->avatar ?? null,
                     ],
+                    'replies' => $comment->replies->map(function ($reply) {
+                        return [
+                            'id' => $reply->id,
+                            'comment' => $reply->comment,
+                            'created_at' => $reply->created_at->diffForHumans(),
+                            'user' => [
+                                'id' => $reply->user->id,
+                                'name' => $reply->user->name,
+                                'avatar' => $reply->user->avatar ?? null,
+                            ],
+                        ];
+                    }),
                 ];
             });
-            return $this->success($response, 'Posts retrieved successfully.', 200);
+
+            return $this->success($response, 'All comments with replies fetched successfully.', 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return $this->error([], $e->getMessage(), 500);
+            return $this->error([], 'Something went wrong while fetching comments.', 500);
         }
     }
+
 
 
     public function myPosts()

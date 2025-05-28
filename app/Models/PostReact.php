@@ -36,6 +36,6 @@ class PostReact extends Model
 
     public function replies()
     {
-        return $this->hasMany(PostReact::class, 'parent_comment_id');
+        return $this->hasMany(PostReact::class, 'parent_comment_id')->with('user');
     }
 }
