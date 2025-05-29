@@ -69,9 +69,9 @@ Route::group(['middleware' => ['auth:api']], function () {
 
 
 
-    Route::get('/water', [ApiWaterController::class, 'index']); 
-    Route::post('/water/add', [ApiWaterController::class, 'addIntake']); 
-    Route::post('/water/delete', [ApiWaterController::class, 'deleteIntake']); 
+    Route::get('/water', [ApiWaterController::class, 'index']);
+    Route::post('/water/add', [ApiWaterController::class, 'addIntake']);
+    Route::post('/water/delete', [ApiWaterController::class, 'deleteIntake']);
     Route::post('/water/goal', [ApiWaterController::class, 'setGoal']);
 
 
@@ -79,6 +79,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
 
     Route::get('/hatha-yoga',[ApiContentController::class,'hathaYoga']);
+    Route::get('/vinyasa-yoga',[ApiContentController::class,'vinyasaYoga']);
 
 
 
