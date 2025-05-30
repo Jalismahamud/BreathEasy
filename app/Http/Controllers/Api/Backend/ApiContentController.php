@@ -15,118 +15,235 @@ class ApiContentController extends Controller
 
     public function hathaYoga(Request $request)
     {
+
         try {
-            $query = Content::with(['category', 'contentType', 'contentDuration'])
+            $query = Content::with(['category', 'contentType'])
                 ->where('category_id', 1);
 
-            if ($request->has('category')) {
-                $query->whereHas('category', function ($q) use ($request) {
-                    $q->where('title', $request->category);
-                });
+            if ($request->filled('level') && $request->level !== 'all') {
+                $query->where('type', $request->level);
             }
-
-            if ($request->has('level')) {
-                $query->where('level', $request->level);
+            if ($request->filled('duration') && $request->duration !== 'all') {
+                $query->where('content_duration_id', $request->duration);
             }
-
-            if ($request->has('duration')) {
-                $query->whereHas('contentDuration', function ($q) use ($request) {
-                    $q->whereBetween('length', [
-                        (int) $request->duration,
-                    ]);
-                });
+            if ($request->filled('type') && $request->type !== 'all') {
+                $query->where('content_type_id', $request->type);
             }
-
-            if ($request->has('goal')) {
-                $query->whereJsonContains('goals', $request->goal);
-            }
-
             $results = $query->latest()->get();
-
 
             if ($results->isEmpty()) {
                 return $this->success([
-                    'category' => $request->category ?? 'Hatha Yoga',
+                    'category' => 'Hatha Yoga',
                     'contents' => []
                 ], 'No content found.', 200);
             }
-
 
             $formatted = [
                 'category' => $results->first()->category->title ?? 'Hatha Yoga',
                 'contents' => $results->map(function ($item) {
                     return [
-                        'title' => $item->title,
-                        'video' => $item->video_url ?? null,
-                        'video_duration' => $item->contentDuration->length ?? null,
-                        'type' => $item->contentType->name ?? null
+                        'id'                  => $item->id,
+                        'title'               => $item->title,
+                        'description'         => $item->description,
+                        'image'               => $item->category->image ?? null,
+                        'video'               => url($item->video ?? null),
+                        'video_duration'      => $item->video_length ?? null,
+                        'level'               => $item->type,
+                        'type'                => $item->contentType->title ?? null,
                     ];
                 }),
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
         } catch (Exception $e) {
-
             Log::info($e->getMessage());
             return $this->error([], $e->getMessage(), 422);
         }
     }
 
-
     public function vinyasaYoga(Request $request)
     {
         try {
-            $query = Content::with(['category', 'contentType', 'contentDuration'])
-                ->where('category_id', 1);
+            $query = Content::with(['category', 'contentType'])
+                ->where('category_id', 2);
 
-            if ($request->has('category')) {
-                $query->whereHas('category', function ($q) use ($request) {
-                    $q->where('title', $request->category);
-                });
+            if ($request->filled('level') && $request->level !== 'all') {
+                $query->where('type', $request->level);
             }
-
-            if ($request->has('level')) {
-                $query->where('level', $request->level);
+            if ($request->filled('duration') && $request->duration !== 'all') {
+                $query->where('content_duration_id', $request->duration);
             }
-
-            if ($request->has('duration')) {
-                $query->whereHas('contentDuration', function ($q) use ($request) {
-                    $q->whereBetween('length', [
-                        (int) $request->duration,
-                    ]);
-                });
+            if ($request->filled('type') && $request->type !== 'all') {
+                $query->where('content_type_id', $request->type);
             }
-
-            if ($request->has('goal')) {
-                $query->whereJsonContains('goals', $request->goal);
-            }
-
             $results = $query->latest()->get();
-
 
             if ($results->isEmpty()) {
                 return $this->success([
-                    'category' => $request->category ?? 'Hatha Yoga',
+                    'category' => 'Vinyasa Yoga',
                     'contents' => []
                 ], 'No content found.', 200);
             }
 
-
             $formatted = [
-                'category' => $results->first()->category->title ?? 'Hatha Yoga',
+                'category' => $results->first()->category->title ?? 'Vinyasa Yoga',
                 'contents' => $results->map(function ($item) {
                     return [
-                        'title' => $item->title,
-                        'video' => $item->video_url ?? null,
-                        'video_duration' => $item->contentDuration->length ?? null,
-                        'type' => $item->contentType->name ?? null
+                        'id'                  => $item->id,
+                        'title'               => $item->title,
+                        'description'         => $item->description,
+                        'image'               => $item->category->image ?? null,
+                        'video'               => url($item->video ?? null),
+                        'video_duration'      => $item->video_length ?? null,
+                        'level'               => $item->type,
+                        'type'                => $item->contentType->title ?? null,
                     ];
                 }),
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
         } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return $this->error([], $e->getMessage(), 422);
+        }
+    }
 
+    public function restorativeYoga(Request $request)
+    {
+        try {
+            $query = Content::with(['category', 'contentType'])
+                ->where('category_id', 3);
+
+            if ($request->filled('level') && $request->level !== 'all') {
+                $query->where('type', $request->level);
+            }
+            if ($request->filled('duration') && $request->duration !== 'all') {
+                $query->where('content_duration_id', $request->duration);
+            }
+            if ($request->filled('type') && $request->type !== 'all') {
+                $query->where('content_type_id', $request->type);
+            }
+            $results = $query->latest()->get();
+
+            if ($results->isEmpty()) {
+                return $this->success([
+                    'category' => 'Restorative Yoga',
+                    'contents' => []
+                ], 'No content found.', 200);
+            }
+
+            $formatted = [
+                'category' => $results->first()->category->title ?? 'Restorative Yoga',
+                'contents' => $results->map(function ($item) {
+                    return [
+                        'id'                  => $item->id,
+                        'title'               => $item->title,
+                        'description'         => $item->description,
+                        'image'               => $item->category->image ?? null,
+                        'video'               => url($item->video ?? null),
+                        'video_duration'      => $item->video_length ?? null,
+                        'level'               => $item->type,
+                        'type'                => $item->contentType->title ?? null,
+                    ];
+                }),
+            ];
+
+            return $this->success($formatted, 'Content fetched successfully.', 200);
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return $this->error([], $e->getMessage(), 422);
+        }
+    }
+
+    public function yogicBits(Request $request)
+    {
+        try {
+            $query = Content::with(['category', 'contentType'])
+                ->where('category_id', 4);
+
+            if ($request->filled('level') && $request->level !== 'all') {
+                $query->where('type', $request->level);
+            }
+            if ($request->filled('duration') && $request->duration !== 'all') {
+                $query->where('content_duration_id', $request->duration);
+            }
+            if ($request->filled('type') && $request->type !== 'all') {
+                $query->where('content_type_id', $request->type);
+            }
+            $results = $query->latest()->get();
+
+            if ($results->isEmpty()) {
+                return $this->success([
+                    'category' => 'Yogic bits',
+                    'contents' => []
+                ], 'No content found.', 200);
+            }
+
+            $formatted = [
+                'category' => $results->first()->category->title ?? 'Yogic bits',
+                'contents' => $results->map(function ($item) {
+                    return [
+                        'id'                  => $item->id,
+                        'title'               => $item->title,
+                        'description'         => $item->description,
+                        'image'               => $item->category->image ?? null,
+                        'video'               => url($item->video ?? null),
+                        'video_duration'      => $item->video_length ?? null,
+                        'level'               => $item->type,
+                        'type'                => $item->contentType->title ?? null,
+                    ];
+                }),
+            ];
+
+            return $this->success($formatted, 'Content fetched successfully.', 200);
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return $this->error([], $e->getMessage(), 422);
+        }
+    }
+
+    public function guidedMeditation(Request $request)
+    {
+        try {
+            $query = Content::with(['category', 'contentType'])
+                ->where('category_id', 5);
+
+            if ($request->filled('level') && $request->level !== 'all') {
+                $query->where('type', $request->level);
+            }
+            if ($request->filled('duration') && $request->duration !== 'all') {
+                $query->where('content_duration_id', $request->duration);
+            }
+            if ($request->filled('type') && $request->type !== 'all') {
+                $query->where('content_type_id', $request->type);
+            }
+            $results = $query->latest()->get();
+
+            if ($results->isEmpty()) {
+                return $this->success([
+                    'category' => 'Guided Meditation',
+                    'contents' => []
+                ], 'No content found.', 200);
+            }
+
+            $formatted = [
+                'category' => $results->first()->category->title ?? 'Guided Meditation',
+                'contents' => $results->map(function ($item) {
+                    return [
+                        'id'                  => $item->id,
+                        'title'               => $item->title,
+                        'description'         => $item->description,
+                        'image'               => $item->category->image ?? null,
+                        'video'               => url($item->video ?? null),
+                        'video_duration'      => $item->video_length ?? null,
+                        'level'               => $item->type,
+                        'type'                => $item->contentType->title ?? null,
+                    ];
+                }),
+            ];
+
+            return $this->success($formatted, 'Content fetched successfully.', 200);
+        } catch (Exception $e) {
             Log::info($e->getMessage());
             return $this->error([], $e->getMessage(), 422);
         }

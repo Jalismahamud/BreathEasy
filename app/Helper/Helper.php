@@ -3,14 +3,16 @@
 namespace App\Helper;
 
 use Exception;
-use Firebase\JWT\JWT;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB;
 use App\Models\Post;
+use Firebase\JWT\JWT;
 use App\Models\PostImage;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use getID3;
 
 class Helper
 {
@@ -64,5 +66,19 @@ class Helper
         return false;
     }
 
-    
+
+
+    public static function getVideoDurationFormatted($relativePath)
+    {
+        $absolutePath = storage_path('app/public/' . $relativePath);
+
+        $getID3 = new getID3();
+        $info = $getID3->analyze($absolutePath);
+
+        if (!isset($info['playtime_seconds'])) {
+            return null;
+        }
+
+        return gmdate("H:i:s", (int)$info['playtime_seconds']);
+    }
 }

@@ -36,10 +36,11 @@
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
+                                                <th>Title</th>
+                                                <th>Length</th>
                                                 <th>Category</th>
                                                 <th>Type</th>
                                                 <th>Content Type</th>
-                                                <th>Duration</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -86,6 +87,14 @@
                             searchable: false
                         },
                         {
+                            data: 'title',
+                            name: 'title'
+                        },
+                        {
+                            data: 'video_length',
+                            name: 'video_length'
+                        },
+                        {
                             data: 'category',
                             name: 'category'
                         },
@@ -96,10 +105,6 @@
                         {
                             data: 'content_type',
                             name: 'content_type'
-                        },
-                        {
-                            data: 'duration',
-                            name: 'duration'
                         },
                         {
                             data: 'action',

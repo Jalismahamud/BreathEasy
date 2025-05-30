@@ -8,23 +8,22 @@ use App\Models\Content;
 use App\Models\Category;
 use App\Models\ContentType;
 use Illuminate\Http\Request;
-use App\Models\ContentDuration;
 use Yajra\DataTables\DataTables;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 class ContentController extends Controller
 {
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         if ($request->ajax()) {
-            $data = Content::with(['category', 'contentType', 'contentDuration'])->latest();
+            $data = Content::with(['category', 'contentType'])->latest()->orderBy('id', 'asc');
 
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('category', fn ($data) => $data->category?->title ?? 'N/A')
-                ->addColumn('type', fn ($data) => $data->type ?? 'N/A')
-                ->addColumn('content_type', fn ($data) => $data->contentType?->title ?? 'N/A')
-                ->addColumn('duration', fn ($data) => $data->contentDuration?->length ?? 'N/A')
+                ->addColumn('category', fn($data) => $data->category?->title ?? 'N/A')
+                ->addColumn('type', fn($data) => $data->type ?? 'N/A')
+                ->addColumn('content_type', fn($data) => $data->contentType?->title ?? 'N/A')
                 ->addColumn('action', function ($data) {
                     return '<div class="btn-group btn-group-sm" role="group">
                                 <a href="' . route('admin.content.edit', $data->id) . '" class="btn btn-primary text-white" title="Edit">
@@ -42,32 +41,37 @@ class ContentController extends Controller
         return view('backend.layouts.content.index');
     }
 
-    public function create() {
+    public function create()
+    {
         $categories = Category::all();
         $contentTypes = ContentType::all();
-        $durations = ContentDuration::all();
-        return view('backend.layouts.content.create', compact('categories', 'contentTypes', 'durations'));
+        return view('backend.layouts.content.create', compact('categories', 'contentTypes'));
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'content_type_id' => 'required|exists:content_types,id',
-            'content_duration_id' => 'required|exists:content_durations,id',
             'type' => 'required|string',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'video' => 'required|file|mimes:mp4,mov,avi,wmv|max:51200', 
+            'video' => 'required|file|mimes:mp4,mov,avi,wmv',
+            'video_length' => 'nullable|string'
         ]);
 
         try {
             if ($request->hasFile('video')) {
                 $video = $request->file('video');
-                $videoPath = Helper::uploadImage($video, 'contents'); 
+                $videoPath = Helper::uploadImage($video, 'contents');
                 $validated['video'] = $videoPath;
             }
 
+
+            $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+
             Content::create($validated);
+
             session()->put('t-success', 'Content created successfully');
         } catch (Exception $e) {
             session()->put('t-error', $e->getMessage());
@@ -76,48 +80,58 @@ class ContentController extends Controller
         return redirect()->route('admin.content.index');
     }
 
-    public function edit($id) {
+
+    public function edit($id)
+    {
         $data = Content::findOrFail($id);
         $categories = Category::all();
         $contentTypes = ContentType::all();
-        $durations = ContentDuration::all();
-        return view('backend.layouts.content.edit', compact('data', 'categories', 'contentTypes', 'durations'));
+        return view('backend.layouts.content.edit', compact('data', 'categories', 'contentTypes'));
     }
 
-    public function update(Request $request, $id) {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'content_type_id' => 'required|exists:content_types,id',
-            'content_duration_id' => 'required|exists:content_durations,id',
-            'type' => 'required|string',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'video' => 'required|file|mimes:mp4,mov,avi,wmv|max:51200',
-        ]);
+    public function update(Request $request, $id)
+{
 
-        try {
-            $content = Content::find($id);
+    $validated = $request->validate([
+        'category_id' => 'required|exists:categories,id',
+        'content_type_id' => 'required|exists:content_types,id',
+        'type' => 'required|string',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'video' => 'nullable|file|mimes:mp4,mov,avi,wmv',
+        'video_length' => 'nullable|string'
+    ]);
 
-            if ($request->hasFile('video')) {
-                if ($content->video) {
-                    Helper::deleteAvatar($content->video); 
-                }
+    try {
+        $content = Content::findOrFail($id);
 
-                $video = $request->file('video');
-                $videoPath = Helper::uploadImage($video, 'contents');
-                $validated['video'] = $videoPath;
+
+        if ($request->hasFile('video')) {
+
+            if ($content->video) {
+                Helper::deleteAvatar($content->video);
             }
 
-            $content->update($validated);
-            session()->put('t-success', 'Content updated successfully');
-        } catch (Exception $e) {
-            session()->put('t-error', $e->getMessage());
+            $video = $request->file('video');
+            $videoPath = Helper::uploadImage($video, 'contents');
+            $validated['video'] = $videoPath;
+
+
+            $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
         }
 
-        return redirect()->route('admin.content.index');
+        $content->update($validated);
+        session()->put('t-success', 'Content updated successfully');
+    } catch (Exception $e) {
+        session()->put('t-error', $e->getMessage());
     }
 
-    public function destroy($id): JsonResponse {
+    return redirect()->route('admin.content.index');
+}
+
+
+    public function destroy($id): JsonResponse
+    {
         $data = Content::find($id);
 
         if (!$data) {
@@ -128,7 +142,7 @@ class ContentController extends Controller
         }
 
         if ($data->video) {
-          Helper::deleteAvatar($data->video);
+            Helper::deleteAvatar($data->video);
         }
 
         $data->delete();

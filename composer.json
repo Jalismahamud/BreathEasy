@@ -9,6 +9,7 @@
         "php": "^8.2",
         "firebase/php-jwt": "^6.11",
         "guzzlehttp/guzzle": "^7.9",
+        "james-heinrich/getid3": "^1.9",
         "laravel/breeze": "^2.3",
         "laravel/cashier": "^15.6",
         "laravel/framework": "^11.31",

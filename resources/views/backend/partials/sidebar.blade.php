@@ -83,7 +83,7 @@
                 </li>
 
 
-                <li class="slide">
+                {{-- <li class="slide">
                     <a class="side-menu__item" data-bs-toggle="slide" href="#">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                             class="side-menu__icon" viewBox="0 0 16 16">
@@ -101,7 +101,7 @@
                     </ul>
 
                     <h3>Component</h3>
-                </li>
+                </li> --}}
 
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('faq') ? 'has-link' : '' }}"
@@ -132,7 +132,7 @@
                         </li>
                         <li><a href="{{ route('setting.profile.index') }}" class="slide-item">Profile Settings</a>
                         </li>
-                        <li><a href="{{ route('setting.mail.index') }}" class="slide-item">Mail Settings</a></li>
+                        {{-- <li><a href="{{ route('setting.mail.index') }}" class="slide-item">Mail Settings</a></li> --}}
                         <li><a href="{{ route('admin.dynamic_page.index') }}" class="slide-item">Dynamic Page</a>
                         </li>
 

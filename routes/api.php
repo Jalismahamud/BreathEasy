@@ -80,6 +80,9 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::get('/hatha-yoga',[ApiContentController::class,'hathaYoga']);
     Route::get('/vinyasa-yoga',[ApiContentController::class,'vinyasaYoga']);
+    Route::get('/restorative -yoga',[ApiContentController::class,'restorativeYoga']);
+    Route::get('/yogic-bits',[ApiContentController::class,'yogicBits']);
+    Route::get('/guided-meditation',[ApiContentController::class,'guidedMeditation']);
 
 
 
