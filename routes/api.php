@@ -21,6 +21,7 @@ Route::get('/faqs', [ApiFaqController::class, 'faqs']);
 Route::get('privacy-policy', [DynamicPageController::class, 'privacyPolicy']);
 Route::get('terms-and-condition', [DynamicPageController::class, 'termsAndConditions']);
 Route::get('/category',[CategoryController::class, 'category']);
+Route::get('/content-type',[CategoryController::class, 'contentType']);
 
 
 Route::group(['middleware' => 'guest:api',], function () {
@@ -61,7 +62,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
 
     Route::get('/my-notes', [ApiNoteController::class, 'index']);
-    Route::post('/note/create', [ApiNoteController::class, 'store']);
+    Route::post('/note/create/{contentId}', [ApiNoteController::class, 'store']);
     Route::delete('/note/delete/{note_id}', [ApiNoteController::class, 'delete']);
 
 

@@ -56,11 +56,23 @@ class ContentController extends Controller
             'type' => 'required|string',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
             'video' => 'required|file|mimes:mp4,mov,avi,wmv',
             'video_length' => 'nullable|string'
         ]);
 
         try {
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imagePath = Helper::uploadImage($image, 'contents');
+                $validated['image'] = $imagePath;
+            } else {
+                $validated['image'] = null;
+            }
+
+
+
             if ($request->hasFile('video')) {
                 $video = $request->file('video');
                 $videoPath = Helper::uploadImage($video, 'contents');
@@ -90,44 +102,58 @@ class ContentController extends Controller
     }
 
     public function update(Request $request, $id)
-{
+    {
 
-    $validated = $request->validate([
-        'category_id' => 'required|exists:categories,id',
-        'content_type_id' => 'required|exists:content_types,id',
-        'type' => 'required|string',
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'video' => 'nullable|file|mimes:mp4,mov,avi,wmv',
-        'video_length' => 'nullable|string'
-    ]);
+        $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'content_type_id' => 'required|exists:content_types,id',
+            'type' => 'required|string',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
+            'video' => 'nullable|file|mimes:mp4,mov,avi,wmv',
+            'video_length' => 'nullable|string'
+        ]);
 
-    try {
-        $content = Content::findOrFail($id);
+        try {
+            $content = Content::findOrFail($id);
 
-
-        if ($request->hasFile('video')) {
-
-            if ($content->video) {
-                Helper::deleteAvatar($content->video);
+            if ($request->hasFile('image')) {
+                if ($content->image) {
+                    Helper::deleteAvatar($content->image);
+                }
+                $image = $request->file('image');
+                $imagePath = Helper::uploadImage($image, 'contents');
+                $validated['image'] = $imagePath;
+            } else {
+                $validated['image'] = $content->image;
             }
 
-            $video = $request->file('video');
-            $videoPath = Helper::uploadImage($video, 'contents');
-            $validated['video'] = $videoPath;
+
+            if ($request->hasFile('video')) {
+
+                if ($content->video) {
+                    Helper::deleteAvatar($content->video);
+                }
+
+                $video = $request->file('video');
+                $videoPath = Helper::uploadImage($video, 'contents');
+                $validated['video'] = $videoPath;
 
 
-            $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+                $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+            }
+
+
+
+            $content->update($validated);
+            session()->put('t-success', 'Content updated successfully');
+        } catch (Exception $e) {
+            session()->put('t-error', $e->getMessage());
         }
 
-        $content->update($validated);
-        session()->put('t-success', 'Content updated successfully');
-    } catch (Exception $e) {
-        session()->put('t-error', $e->getMessage());
+        return redirect()->route('admin.content.index');
     }
-
-    return redirect()->route('admin.content.index');
-}
 
 
     public function destroy($id): JsonResponse
@@ -139,6 +165,10 @@ class ContentController extends Controller
                 'success' => false,
                 'message' => 'Content not found.',
             ], 404);
+        }
+
+        if ($data->image) {
+            Helper::deleteAvatar($data->image);
         }
 
         if ($data->video) {

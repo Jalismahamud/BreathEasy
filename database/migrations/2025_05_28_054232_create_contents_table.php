@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->foreignId('content_type_id')->constrained('content_types')->onDelete('cascade');
-            $table->enum('type',['begginner','intermediate','advanced'])->default('begginner');
+            $table->enum('type',['Beginner','Intermediate','Advanced'])->default('Beginner');
             $table->string('title');
             $table->longText('description')->nullable();
+            $table->string('image')->nullable();
             $table->string('video')->nullable();
             $table->string('video_length')->nullable();
             $table->timestamps();

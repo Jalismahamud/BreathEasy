@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DynamicPageSeeder::class);
         $this->call(CategorySeeder::class);
         $this->call(ContentTypeSeeder::class);
-        $this->call(ContentLengthSeeder::class);
         $this->call(ContentSeeder::class);
    }
 }

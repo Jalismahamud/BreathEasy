@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
-    protected $fillable = ['user_id' , 'note'];
+    protected $fillable = ['user_id' , 'content_id'  , 'note'];
 
     protected $hidden = ['created_at', 'updated_at'];
 

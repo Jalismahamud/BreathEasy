@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\Backend;
 
 use App\Models\Note;
+use App\Models\Content;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Validator;
 
 class ApiNoteController extends Controller
@@ -20,7 +20,7 @@ class ApiNoteController extends Controller
             $notes = Note::with('user')->latest()->get();
 
             if ($notes->isEmpty()) {
-                return $this->success([], 'No notes found.', 404);
+                return $this->success([], 'No notes found.', 200);
             }
 
             $groupedNotes = $notes->groupBy(function ($note) {
@@ -38,18 +38,18 @@ class ApiNoteController extends Controller
                         ];
                     })->values(),
                 ];
-            })->values(); 
+            })->values();
 
             return $this->success($response, 'Notes retrieved successfully.', 200);
         } catch (\Exception $e) {
-            
+
             Log::error($e->getMessage());
             return $this->error([], 'Something went wrong.', 500);
         }
     }
 
 
-    public function store(Request $request)
+    public function store(Request $request , $contentId)
     {
         $validator = Validator::make($request->all(), [
             'note' => 'required|string',
@@ -59,9 +59,15 @@ class ApiNoteController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
+
+        if (!Content::where('id', $contentId)->exists()) {
+            return $this->error([], 'Invalid content ID. Content not found.', 404);
+        }
+
         try {
             $note = Note::create([
                 'user_id' => auth('api')->id(),
+                'content_id' => $contentId,
                 'note' => $request->note,
             ]);
 

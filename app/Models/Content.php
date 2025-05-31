@@ -16,6 +16,7 @@ class Content extends Model
         'type',
         'title',
         'description',
+        'image',
         'video',
         'video_length',
     ];
@@ -29,7 +30,7 @@ class Content extends Model
     {
         return $this->belongsTo(ContentType::class);
     }
-   
+
 }
 
 
