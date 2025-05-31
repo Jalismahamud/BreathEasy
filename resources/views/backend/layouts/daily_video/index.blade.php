@@ -152,6 +152,45 @@
             border-radius: 0.5rem;
             background: #f8fafc;
         }
+        .calendar-hover-card-list {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translate(-50%, 10px);
+            z-index: 10;
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.15);
+            padding: 0.5rem 1rem;
+            min-width: 240px;
+            text-align: center;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            max-width: 90vw;
+            overflow-x: auto;
+        }
+        .calendar-table td.has-video:hover .calendar-hover-card-list {
+            display: flex;
+        }
+        .calendar-hover-card-video-thumb {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            cursor: pointer;
+            vertical-align: top;
+            min-width: 110px;
+        }
+        .calendar-hover-card-video-thumb video {
+            border: 2px solid #e0e7ef;
+            transition: border 0.2s;
+        }
+        .calendar-hover-card-video-thumb:hover video {
+            border: 2px solid #3b82f6;
+        }
     </style>
 @endpush
 
@@ -173,9 +212,10 @@
                 @csrf
                 <div class="mb-3">
                     <label for="video" class="form-label">Video:</label>
-                    <input type="file" name="video" id="video"
-                        class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4"
-                        data-default-file="{{ isset($latestVideo) && file_exists(public_path($latestVideo->video)) ? asset($latestVideo->video) : asset('default/video.png') }}">
+                    <div id="video-preview-container" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;"></div>
+                    <input type="file" name="video[]" id="video" multiple
+                        class="form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4" accept="video/mp4" style="padding: 0.5rem; border-radius: 0.5rem; border: 1.5px solid #3b82f6; background: #f8fafc;" />
+                    <div id="video-error" class="text-danger mt-1"></div>
                     @error('video')
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
@@ -193,33 +233,9 @@
                 $calendar = [];
                 foreach ($videos as $video) {
                     $date = $video->created_at->toDateString();
-                    $calendar[$date] = $video;
+                    $calendar[$date][] = $video;
                 }
             @endphp
-            <div class="d-flex align-items-center mb-3">
-                <form method="GET" class="d-flex align-items-center gap-2" style="gap: 0.5rem;">
-                    <label for="month" class="form-label mb-0">Month:</label>
-                    <select name="month" id="month" class="form-select form-select-sm" style="width: auto;">
-                        @for ($m = 1; $m <= 12; $m++)
-                            <option value="{{ $m }}" {{ $selectedMonth == $m ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
-                        @endfor
-                    </select>
-                    <label for="year" class="form-label mb-0 ms-2">Year:</label>
-                    <div class="calendar-year-scroll">
-                        <select name="year" id="year" class="form-select form-select-sm" style="width: 100%; background: transparent; border: none; box-shadow: none;">
-                            @php
-                                $minYear = 2020;
-                                $maxYear = $today->year;
-                            @endphp
-                            @for ($y = $minYear; $y <= $maxYear; $y++)
-                                <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary btn-sm ms-2">Go</button>
-                    <button type="button" id="goto-current" class="btn btn-success btn-sm ms-2">Current Month</button>
-                </form>
-            </div>
             <table class="calendar-table">
                 <thead>
                     <tr>
@@ -238,8 +254,20 @@
         <tr>
             @for ($d = 0; $d < 7; $d++)
                 @if ($date->month == $selectedMonth)
-                    <td class="{{ $date->isToday() ? 'today' : '' }} {{ isset($calendar[$date->toDateString()]) ? 'has-video' : '' }}" data-date="{{ $date->toDateString() }}" @if(isset($calendar[$date->toDateString()])) data-video-url="{{ asset($calendar[$date->toDateString()]->video) }}" data-uploaded="{{ $calendar[$date->toDateString()]->created_at->timezone('UTC')->toDayDateTimeString() }}" @endif>
+                    <td class="{{ $date->isToday() ? 'today' : '' }} {{ isset($calendar[$date->toDateString()]) ? 'has-video' : '' }}" data-date="{{ $date->toDateString() }}">
                         <div>{{ $date->format('j') }}</div>
+                        @if(isset($calendar[$date->toDateString()]))
+                            <div class="calendar-hover-card-list">
+                                @foreach($calendar[$date->toDateString()] as $video)
+                                    <div class="calendar-hover-card-video-thumb" data-video-url="{{ asset($video->video) }}" data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
+                                        <video muted style="width: 100px; height: 60px; border-radius: 0.5rem; object-fit: cover;">
+                                            <source src="{{ asset($video->video) }}" type="video/mp4">
+                                        </video>
+                                        <div class="small text-muted">{{ $video->created_at->format('H:i') }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </td>
                 @else
                     <td style="background: none; box-shadow: none;"></td>
@@ -258,15 +286,29 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('.dropify').dropify();
         setTimeout(function() {
             $('.auto-dismiss').fadeOut('slow');
         }, 5000);
 
-        // Card popup logic
+        // Show/hide video list on hover
+        $(document).on('mouseenter', '.calendar-table td.has-video', function() {
+            const $list = $(this).find('.calendar-hover-card-list');
+            $list.css('width', 'auto');
+            let totalWidth = 0;
+            $list.find('.calendar-hover-card-video-thumb').each(function() {
+                totalWidth += $(this).outerWidth(true);
+            });
+            $list.css('min-width', Math.max(240, totalWidth + 32) + 'px');
+            $list.stop(true, true).fadeIn(120);
+        });
+        $(document).on('mouseleave', '.calendar-table td.has-video', function() {
+            $(this).find('.calendar-hover-card-list').stop(true, true).fadeOut(80);
+        });
+
+        // Card popup logic for multiple videos per day
         let cardOpen = false;
         let cardEl = null;
-        $('.calendar-table td.has-video').on('click', function(e) {
+        $(document).on('click', '.calendar-hover-card-video-thumb', function(e) {
             e.stopPropagation();
             const videoUrl = $(this).data('video-url');
             const uploaded = $(this).data('uploaded');
@@ -274,18 +316,16 @@
             if (cardOpen && cardEl) { cardEl.remove(); cardOpen = false; }
             cardEl = $('<div class="calendar-hover-card" style="display:block;">' +
                 '<button class="close-btn" title="Close">&times;</button>' +
-                '<video controls poster="' + '{{ asset('default/video.png') }}' + '" style="width: 300px; max-width: 90vw; border-radius: 0.5rem;">' +
+                '<video controls poster="{{ asset('default/video.png') }}" style="width: 300px; max-width: 90vw; border-radius: 0.5rem;">' +
                 '<source src="' + videoUrl + '" type="video/mp4">Your browser does not support the video tag.</video>' +
                 '<div class="small text-muted mt-1">Uploaded: ' + uploaded + '</div>' +
                 '<div class="close-hint">Double click video for fullscreen. Click outside to close.</div>' +
             '</div>');
             $('body').append(cardEl);
             cardOpen = true;
-            // Focus the video for keyboard controls
             setTimeout(function() {
                 cardEl.find('video')[0].focus();
             }, 100);
-            // Close on click outside
             setTimeout(function() {
                 $(document).on('mousedown.card', function(ev) {
                     if (cardEl && !$(ev.target).closest('.calendar-hover-card').length) {
@@ -295,13 +335,11 @@
                     }
                 });
             }, 10);
-            // Close on close button
             cardEl.find('.close-btn').on('click', function() {
                 cardEl.remove();
                 cardOpen = false;
                 $(document).off('mousedown.card');
             });
-            // Double click video for fullscreen
             cardEl.find('video').on('dblclick', function(e) {
                 e.stopPropagation();
                 if (this.requestFullscreen) this.requestFullscreen();
@@ -309,18 +347,64 @@
                 else if (this.msRequestFullscreen) this.msRequestFullscreen();
             });
         });
-        // Remove card on double click outside
         $(document).on('dblclick', function(e) {
             if (cardEl && !$(e.target).closest('.calendar-hover-card').length) {
                 cardEl.remove(); cardOpen = false;
             }
         });
-        // Go to current month button
         $('#goto-current').on('click', function() {
             const today = new Date();
             const month = today.getMonth() + 1;
             const year = today.getFullYear();
             window.location.href = '?month=' + month + '&year=' + year;
+        });
+
+        const videoInput = document.getElementById('video');
+        const previewContainer = document.getElementById('video-preview-container');
+        const errorDiv = document.getElementById('video-error');
+        videoInput.addEventListener('change', function(e) {
+            previewContainer.innerHTML = '';
+            errorDiv.textContent = '';
+            let hasError = false;
+            Array.from(this.files).forEach(file => {
+                if (file.type !== 'video/mp4') {
+                    errorDiv.textContent = 'Only MP4 video files are allowed.';
+                    hasError = true;
+                    return;
+                }
+                if (file.size > 50 * 1024 * 1024) {
+                    errorDiv.textContent = 'Each video must be less than 50MB.';
+                    hasError = true;
+                    return;
+                }
+                const videoBox = document.createElement('div');
+                videoBox.style.width = '120px';
+                videoBox.style.textAlign = 'center';
+                videoBox.style.position = 'relative';
+                videoBox.style.background = '#f0f4f8';
+                videoBox.style.borderRadius = '0.5rem';
+                videoBox.style.padding = '0.5rem';
+                videoBox.style.boxShadow = '0 2px 8px rgba(44,62,80,0.07)';
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.controls = true;
+                video.muted = true;
+                video.style.width = '100%';
+                video.style.height = '80px';
+                video.style.objectFit = 'cover';
+                video.style.borderRadius = '0.5rem';
+                videoBox.appendChild(video);
+                const name = document.createElement('div');
+                name.textContent = file.name;
+                name.style.fontSize = '0.85rem';
+                name.style.marginTop = '0.25rem';
+                videoBox.appendChild(name);
+                previewContainer.appendChild(videoBox);
+            });
+            if (hasError) {
+                this.value = '';
+                previewContainer.innerHTML = '';
+            }
         });
     });
 </script>

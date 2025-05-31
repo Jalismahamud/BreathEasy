@@ -42,16 +42,16 @@ class ApiContentController extends Controller
                 'category' => $results->first()->category->title ?? 'Hatha Yoga',
                 'contents' => $results->map(function ($item) {
                     return [
-                        'id'                  => $item->id,
-                        'title'               => $item->title,
-                        'description'         => $item->description,
-                        'image'               => url($item->image ?? null),
-                        'video'               => url($item->video ?? null),
-                        'video_duration'      => $item->video_length ?? null,
-                        'level'               => $item->type,
-                        'type'                => $item->contentType->title ?? null,
+                        'id'            => $item->id,
+                        'title'         => $item->title,
+                        'description'   => $item->description,
+                        'image'         => $item->image ? url($item->image) : null,
+                        'video'         => $item->video ? url($item->video) : null,
+                        'video_duration'=> $item->video_length ?? null,
+                        'level'         => $item->type,
+                        'type'          => $item->contentType->title ?? null,
                     ];
-                }),
+                })->values(),
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
@@ -89,16 +89,16 @@ class ApiContentController extends Controller
                 'category' => $results->first()->category->title ?? 'Vinyasa Yoga',
                 'contents' => $results->map(function ($item) {
                     return [
-                        'id'                  => $item->id,
-                        'title'               => $item->title,
-                        'description'         => $item->description,
-                        'image'               => url($item->image ?? null),
-                        'video'               => url($item->video ?? null),
-                        'video_duration'      => $item->video_length ?? null,
-                        'level'               => $item->type,
-                        'type'                => $item->contentType->title ?? null,
+                        'id'            => $item->id,
+                        'title'         => $item->title,
+                        'description'   => $item->description,
+                        'image'         => $item->image ? url($item->image) : null,
+                        'video'         => $item->video ? url($item->video) : null,
+                        'video_duration'=> $item->video_length ?? null,
+                        'level'         => $item->type,
+                        'type'          => $item->contentType->title ?? null,
                     ];
-                }),
+                })->values(),
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
@@ -136,16 +136,16 @@ class ApiContentController extends Controller
                 'category' => $results->first()->category->title ?? 'Restorative Yoga',
                 'contents' => $results->map(function ($item) {
                     return [
-                        'id'                  => $item->id,
-                        'title'               => $item->title,
-                        'description'         => $item->description,
-                        'image'               => url($item->image ?? null),
-                        'video'               => url($item->video ?? null),
-                        'video_duration'      => $item->video_length ?? null,
-                        'level'               => $item->type,
-                        'type'                => $item->contentType->title ?? null,
+                        'id'            => $item->id,
+                        'title'         => $item->title,
+                        'description'   => $item->description,
+                        'image'         => $item->image ? url($item->image) : null,
+                        'video'         => $item->video ? url($item->video) : null,
+                        'video_duration'=> $item->video_length ?? null,
+                        'level'         => $item->type,
+                        'type'          => $item->contentType->title ?? null,
                     ];
-                }),
+                })->values(),
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
@@ -183,16 +183,16 @@ class ApiContentController extends Controller
                 'category' => $results->first()->category->title ?? 'Yogic bits',
                 'contents' => $results->map(function ($item) {
                     return [
-                        'id'                  => $item->id,
-                        'title'               => $item->title,
-                        'description'         => $item->description,
-                        'image'               => url($item->image ?? null),
-                        'video'               => url($item->video ?? null),
-                        'video_duration'      => $item->video_length ?? null,
-                        'level'               => $item->type,
-                        'type'                => $item->contentType->title ?? null,
+                        'id'            => $item->id,
+                        'title'         => $item->title,
+                        'description'   => $item->description,
+                        'image'         => $item->image ? url($item->image) : null,
+                        'video'         => $item->video ? url($item->video) : null,
+                        'video_duration'=> $item->video_length ?? null,
+                        'level'         => $item->type,
+                        'type'          => $item->contentType->title ?? null,
                     ];
-                }),
+                })->values(),
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
@@ -230,16 +230,16 @@ class ApiContentController extends Controller
                 'category' => $results->first()->category->title ?? 'Guided Meditation',
                 'contents' => $results->map(function ($item) {
                     return [
-                        'id'                  => $item->id,
-                        'title'               => $item->title,
-                        'description'         => $item->description,
-                        'image'               => url($item->image ?? null),
-                        'video'               => url($item->video ?? null),
-                        'video_duration'      => $item->video_length ?? null,
-                        'level'               => $item->type,
-                        'type'                => $item->contentType->title ?? null,
+                        'id'            => $item->id,
+                        'title'         => $item->title,
+                        'description'   => $item->description,
+                        'image'         => $item->image ? url($item->image) : null,
+                        'video'         => $item->video ? url($item->video) : null,
+                        'video_duration'=> $item->video_length ?? null,
+                        'level'         => $item->type,
+                        'type'          => $item->contentType->title ?? null,
                     ];
-                }),
+                })->values(),
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);

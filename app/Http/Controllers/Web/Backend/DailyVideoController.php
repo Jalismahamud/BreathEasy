@@ -19,14 +19,13 @@ class DailyVideoController extends Controller
     public function dailyVideo()
     {
         try {
-            $video = DailyVideo::latest()->first();
-
-            if (!$video) {
+            $today = Carbon::today('UTC');
+            $videos = DailyVideo::whereDate('created_at', $today)->get();
+            if ($videos->isEmpty()) {
                 return $this->error([], 'Video not found.', 404);
             }
-
+            $video = $videos->random();
             $video['video'] = url($video->video);
-
             return $this->success($video, 'Video found.', 200);
         } catch (Exception $e) {
 
@@ -45,7 +44,8 @@ class DailyVideoController extends Controller
     public function createOrUpdate(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'video' => 'required|file|mimetypes:video/mp4',
+        'video' => 'required',
+        'video.*' => 'file|mimetypes:video/mp4',
     ]);
 
     if ($validator->fails()) {
@@ -54,26 +54,16 @@ class DailyVideoController extends Controller
 
     try {
         $today = Carbon::today('UTC');
-        $dailyVideo = DailyVideo::whereDate('created_at', $today)->first();
-
+        $uploadedCount = 0;
         if ($request->hasFile('video')) {
-            $videoPath = Helper::uploadImage($request->file('video'), 'daily-videos');
-
-            if ($dailyVideo) {
-                if ($dailyVideo->video && file_exists(public_path($dailyVideo->video))) {
-                    Helper::deleteImage($dailyVideo->video);
-                }
-
-                $dailyVideo->update([
-                    'video' => $videoPath,
-                ]);
-                session()->put('t-success', 'Daily video updated successfully.');
-            } else {
+            foreach ($request->file('video') as $file) {
+                $videoPath = Helper::uploadImage($file, 'daily-videos');
                 DailyVideo::create([
                     'video' => $videoPath,
                 ]);
-                session()->put('t-success', 'Daily video created successfully.');
+                $uploadedCount++;
             }
+            session()->put('t-success', $uploadedCount . ' video(s) uploaded successfully.');
         }
     } catch (Exception $e) {
         Log::error('Daily Video Error: ' . $e->getMessage());
