@@ -15,9 +15,10 @@ class ApiPostReactController extends Controller
 {
     use ApiResponse;
 
-    public function allComments()
+    public function allComments(Request $request, $postId)
     {
         $comments = PostReact::with(['replies', 'user'])
+            ->where('post_id', $postId)
             ->whereNull('parent_comment_id')
             ->orderBy('created_at', 'desc')
             ->get()
