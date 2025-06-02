@@ -13,31 +13,39 @@ class ApiContentController extends Controller
 {
     use ApiResponse;
 
+    private function applyDurationFilter($query, $duration)
+    {
+        if ($duration === '0-10') {
+            $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 0 AND TIME_TO_SEC(video_length)/60 <= 10");
+        } elseif ($duration === '11-20') {
+            $query->whereRaw("TIME_TO_SEC(video_length)/60 > 10 AND TIME_TO_SEC(video_length)/60 <= 20");
+        } elseif ($duration === '21-30') {
+            $query->whereRaw("TIME_TO_SEC(video_length)/60 > 20 AND TIME_TO_SEC(video_length)/60 <= 30");
+        } elseif ($duration === '31-40') {
+            $query->whereRaw("TIME_TO_SEC(video_length)/60 > 30 AND TIME_TO_SEC(video_length)/60 <= 40");
+        } elseif ($duration === '41-50') {
+            $query->whereRaw("TIME_TO_SEC(video_length)/60 > 40 AND TIME_TO_SEC(video_length)/60 <= 50");
+        } elseif ($duration === '51-60') {
+            $query->whereRaw("TIME_TO_SEC(video_length)/60 > 50 AND TIME_TO_SEC(video_length)/60 <= 60");
+        }
+    }
+
     public function hathaYoga(Request $request)
     {
 
         try {
-            $query = Content::with(['category', 'contentType'])
-                ->where('category_id', 1);
+            $query = Content::with(['category', 'contentType'])->where('category_id', 1);
 
             if ($request->filled('level') && $request->level !== 'all') {
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $duration = $request->duration;
-                if ($duration === '5-10') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 5 AND TIME_TO_SEC(video_length)/60 <= 10");
-                } elseif ($duration === '20-30') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 20 AND TIME_TO_SEC(video_length)/60 <= 30");
-                } elseif ($duration === '30-40') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 30 AND TIME_TO_SEC(video_length)/60 <= 40");
-                } elseif ($duration === '40-60') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 40 AND TIME_TO_SEC(video_length)/60 <= 60");
-                }
+                $this->applyDurationFilter($query, $request->duration);
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
             }
+
             $results = $query->latest()->get();
 
             if ($results->isEmpty()) {
@@ -56,7 +64,7 @@ class ApiContentController extends Controller
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
                         'video'         => $item->video ? url($item->video) : null,
-                        'video_duration'=> $item->video_length ?? null,
+                        'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
                     ];
@@ -80,20 +88,12 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $duration = $request->duration;
-                if ($duration === '5-10') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 5 AND TIME_TO_SEC(video_length)/60 <= 10");
-                } elseif ($duration === '20-30') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 20 AND TIME_TO_SEC(video_length)/60 <= 30");
-                } elseif ($duration === '30-40') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 30 AND TIME_TO_SEC(video_length)/60 <= 40");
-                } elseif ($duration === '40-60') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 40 AND TIME_TO_SEC(video_length)/60 <= 60");
-                }
+                $this->applyDurationFilter($query, $request->duration);
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
             }
+
             $results = $query->latest()->get();
 
             if ($results->isEmpty()) {
@@ -112,7 +112,7 @@ class ApiContentController extends Controller
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
                         'video'         => $item->video ? url($item->video) : null,
-                        'video_duration'=> $item->video_length ?? null,
+                        'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
                     ];
@@ -136,20 +136,12 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $duration = $request->duration;
-                if ($duration === '5-10') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 5 AND TIME_TO_SEC(video_length)/60 <= 10");
-                } elseif ($duration === '20-30') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 20 AND TIME_TO_SEC(video_length)/60 <= 30");
-                } elseif ($duration === '30-40') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 30 AND TIME_TO_SEC(video_length)/60 <= 40");
-                } elseif ($duration === '40-60') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 40 AND TIME_TO_SEC(video_length)/60 <= 60");
-                }
+                $this->applyDurationFilter($query, $request->duration);
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
             }
+
             $results = $query->latest()->get();
 
             if ($results->isEmpty()) {
@@ -168,7 +160,7 @@ class ApiContentController extends Controller
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
                         'video'         => $item->video ? url($item->video) : null,
-                        'video_duration'=> $item->video_length ?? null,
+                        'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
                     ];
@@ -192,20 +184,12 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $duration = $request->duration;
-                if ($duration === '5-10') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 5 AND TIME_TO_SEC(video_length)/60 <= 10");
-                } elseif ($duration === '20-30') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 20 AND TIME_TO_SEC(video_length)/60 <= 30");
-                } elseif ($duration === '30-40') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 30 AND TIME_TO_SEC(video_length)/60 <= 40");
-                } elseif ($duration === '40-60') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 40 AND TIME_TO_SEC(video_length)/60 <= 60");
-                }
+                $this->applyDurationFilter($query, $request->duration);
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
             }
+
             $results = $query->latest()->get();
 
             if ($results->isEmpty()) {
@@ -224,7 +208,7 @@ class ApiContentController extends Controller
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
                         'video'         => $item->video ? url($item->video) : null,
-                        'video_duration'=> $item->video_length ?? null,
+                        'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
                     ];
@@ -248,20 +232,12 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $duration = $request->duration;
-                if ($duration === '5-10') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 5 AND TIME_TO_SEC(video_length)/60 <= 10");
-                } elseif ($duration === '20-30') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 20 AND TIME_TO_SEC(video_length)/60 <= 30");
-                } elseif ($duration === '30-40') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 30 AND TIME_TO_SEC(video_length)/60 <= 40");
-                } elseif ($duration === '40-60') {
-                    $query->whereRaw("TIME_TO_SEC(video_length)/60 >= 40 AND TIME_TO_SEC(video_length)/60 <= 60");
-                }
+                $this->applyDurationFilter($query, $request->duration);
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
             }
+
             $results = $query->latest()->get();
 
             if ($results->isEmpty()) {
@@ -280,7 +256,7 @@ class ApiContentController extends Controller
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
                         'video'         => $item->video ? url($item->video) : null,
-                        'video_duration'=> $item->video_length ?? null,
+                        'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
                     ];
