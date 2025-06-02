@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Support\Facades\Validator;
 
 class ApiPostReactController extends Controller
@@ -17,36 +18,42 @@ class ApiPostReactController extends Controller
 
     public function allComments(Request $request, $postId)
     {
-        $comments = PostReact::with(['replies', 'user'])
-            ->where('post_id', $postId)
-            ->whereNull('parent_comment_id')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($comment) {
-                return [
-                    'id' => $comment->id,
-                    'comment' => $comment->comment,
-                    'post_id' => $comment->post_id,
-                    'created_at' => $comment->created_at,
-                    'user' => [
-                        'id' => $comment->user->id,
-                        'name' => $comment->user->name,
-                    ],
-                    'replies' => $comment->replies->map(function ($reply) {
-                        return [
-                            'id' => $reply->id,
-                            'comment' => $reply->comment,
-                            'created_at' => $reply->created_at,
-                            'user' => [
-                                'id' => $reply->user->id,
-                                'name' => $reply->user->name,
-                            ],
-                        ];
-                    }),
-                ];
-            });
-
-        return $this->success($comments, 'All comments with replies fetched successfully.');
+        try {
+            $post = Post::findOrFail($postId);
+            $comments = PostReact::with(['replies', 'user'])
+                ->where('post_id', $postId)
+                ->whereNull('parent_comment_id')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($comment) {
+                    return [
+                        'id' => $comment->id,
+                        'comment' => $comment->comment,
+                        'post_id' => $comment->post_id,
+                        'created_at' => $comment->created_at,
+                        'user' => [
+                            'id' => $comment->user->id,
+                            'name' => $comment->user->name,
+                        ],
+                        'replies' => $comment->replies->map(function ($reply) {
+                            return [
+                                'id' => $reply->id,
+                                'comment' => $reply->comment,
+                                'created_at' => $reply->created_at,
+                                'user' => [
+                                    'id' => $reply->user->id,
+                                    'name' => $reply->user->name,
+                                ],
+                            ];
+                        }),
+                    ];
+                });
+            return $this->success($comments, 'All comments with replies fetched successfully.');
+        } catch (Exception $e) {
+            return $this->error([], 'Post not found.', 404);
+        } catch (Exception $e) {
+            return $this->error([], $e->getMessage(), 500);
+        }
     }
 
 
