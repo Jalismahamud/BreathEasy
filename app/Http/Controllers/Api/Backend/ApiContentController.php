@@ -24,7 +24,16 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $query->where('content_duration_id', $request->duration);
+                $duration = $request->duration;
+                if ($duration === '5-10') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                } elseif ($duration === '20-30') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                } elseif ($duration === '30-40') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                } elseif ($duration === '40-60') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                }
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
@@ -71,7 +80,16 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $query->where('content_duration_id', $request->duration);
+                $duration = $request->duration;
+                if ($duration === '5-10') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                } elseif ($duration === '20-30') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                } elseif ($duration === '30-40') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                } elseif ($duration === '40-60') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                }
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
@@ -118,7 +136,16 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $query->where('content_duration_id', $request->duration);
+                $duration = $request->duration;
+                if ($duration === '5-10') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                } elseif ($duration === '20-30') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                } elseif ($duration === '30-40') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                } elseif ($duration === '40-60') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                }
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
@@ -165,7 +192,16 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $query->where('content_duration_id', $request->duration);
+                $duration = $request->duration;
+                if ($duration === '5-10') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                } elseif ($duration === '20-30') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                } elseif ($duration === '30-40') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                } elseif ($duration === '40-60') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                }
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
@@ -212,7 +248,16 @@ class ApiContentController extends Controller
                 $query->where('type', $request->level);
             }
             if ($request->filled('duration') && $request->duration !== 'all') {
-                $query->where('content_duration_id', $request->duration);
+                $duration = $request->duration;
+                if ($duration === '5-10') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                } elseif ($duration === '20-30') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                } elseif ($duration === '30-40') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                } elseif ($duration === '40-60') {
+                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                }
             }
             if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('content_type_id', $request->type);
