@@ -26,13 +26,13 @@ class ApiContentController extends Controller
             if ($request->filled('duration') && $request->duration !== 'all') {
                 $duration = $request->duration;
                 if ($duration === '5-10') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 5 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 10");
                 } elseif ($duration === '20-30') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 20 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 30");
                 } elseif ($duration === '30-40') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 30 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 40");
                 } elseif ($duration === '40-60') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 40 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 60");
                 }
             }
             if ($request->filled('type') && $request->type !== 'all') {
@@ -82,13 +82,13 @@ class ApiContentController extends Controller
             if ($request->filled('duration') && $request->duration !== 'all') {
                 $duration = $request->duration;
                 if ($duration === '5-10') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 5 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 10");
                 } elseif ($duration === '20-30') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 20 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 30");
                 } elseif ($duration === '30-40') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 30 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 40");
                 } elseif ($duration === '40-60') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 40 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 60");
                 }
             }
             if ($request->filled('type') && $request->type !== 'all') {
@@ -138,13 +138,13 @@ class ApiContentController extends Controller
             if ($request->filled('duration') && $request->duration !== 'all') {
                 $duration = $request->duration;
                 if ($duration === '5-10') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 5 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 10");
                 } elseif ($duration === '20-30') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 20 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 30");
                 } elseif ($duration === '30-40') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 30 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 40");
                 } elseif ($duration === '40-60') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 40 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 60");
                 }
             }
             if ($request->filled('type') && $request->type !== 'all') {
@@ -194,13 +194,13 @@ class ApiContentController extends Controller
             if ($request->filled('duration') && $request->duration !== 'all') {
                 $duration = $request->duration;
                 if ($duration === '5-10') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 5 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 10");
                 } elseif ($duration === '20-30') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 20 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 30");
                 } elseif ($duration === '30-40') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 30 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 40");
                 } elseif ($duration === '40-60') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 40 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 60");
                 }
             }
             if ($request->filled('type') && $request->type !== 'all') {
@@ -250,13 +250,13 @@ class ApiContentController extends Controller
             if ($request->filled('duration') && $request->duration !== 'all') {
                 $duration = $request->duration;
                 if ($duration === '5-10') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 5 AND CAST(video_length AS UNSIGNED) <= 10");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 5 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 10");
                 } elseif ($duration === '20-30') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 20 AND CAST(video_length AS UNSIGNED) <= 30");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 20 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 30");
                 } elseif ($duration === '30-40') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 30 AND CAST(video_length AS UNSIGNED) <= 40");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 30 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 40");
                 } elseif ($duration === '40-60') {
-                    $query->whereRaw("CAST(video_length AS UNSIGNED) >= 40 AND CAST(video_length AS UNSIGNED) <= 60");
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) >= 40 AND CAST(REGEXP_SUBSTR(video_length, '^[0-9]+') AS UNSIGNED) <= 60");
                 }
             }
             if ($request->filled('type') && $request->type !== 'all') {
