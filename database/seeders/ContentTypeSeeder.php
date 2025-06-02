@@ -12,11 +12,12 @@ class ContentTypeSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            'strees relef' ,
-            'improve flexibility',
-            'improve posture',
-            'improve balance',
-            'improve strength',
+            'All',
+            'Stress relief' ,
+            'Improve flexibility',
+            'Improve posture',
+            'Improve balance',
+            'Improve strength',
         ];
 
         foreach ($data as $value) {
