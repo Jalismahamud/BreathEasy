@@ -86,6 +86,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/yogic-bits',[ApiContentController::class,'yogicBits']);
     Route::get('/guided-meditation',[ApiContentController::class,'guidedMeditation']);
 
+    Route::get('latest/guided-meditation',[ApiContentController::class,'latestGuidedMeditation']);
+
 
 
     Route::post('user-video-activity', [ApiUserVideoActivityController::class, 'store']);

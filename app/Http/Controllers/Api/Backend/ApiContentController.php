@@ -269,4 +269,41 @@ class ApiContentController extends Controller
             return $this->error([], $e->getMessage(), 422);
         }
     }
+
+
+    public function latestGuidedMeditation(Request $request)
+    {
+        try {
+            $results = Content::with(['category', 'contentType'])
+                ->where('category_id', 5)
+                ->latest()
+                ->take(4)
+                ->get(); 
+
+            if ($results->isEmpty()) {
+                return $this->error([], 'No content found.', 404);
+            }
+
+            $formatted = [
+                'category' => $results->first()->category->title ?? 'Guided Meditation',
+                'contents' => $results->map(function ($item) {
+                    return [
+                        'id'            => $item->id,
+                        'title'         => $item->title,
+                        'description'   => $item->description,
+                        'image'         => $item->image ? url($item->image) : null,
+                        'video'         => $item->video ? url($item->video) : null,
+                        'video_duration'=> $item->video_length ?? null,
+                        'level'         => $item->type,
+                        'type'          => $item->contentType->title ?? null,
+                    ];
+                })->values(),
+            ];
+
+            return $this->success($formatted, 'Content fetched successfully.', 200);
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return $this->error([], $e->getMessage(), 422);
+        }
+    }
 }
