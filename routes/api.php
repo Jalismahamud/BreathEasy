@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Backend\ApiContentController;
 use App\Http\Controllers\Web\Backend\DailyVideoController;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
 use App\Http\Controllers\Api\Backend\ApiPostReactController;
+use App\Http\Controllers\Api\Backend\ApiUserVideoActivityController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
 
 Route::get('/faqs', [ApiFaqController::class, 'faqs']);
@@ -84,6 +85,10 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/restorative -yoga',[ApiContentController::class,'restorativeYoga']);
     Route::get('/yogic-bits',[ApiContentController::class,'yogicBits']);
     Route::get('/guided-meditation',[ApiContentController::class,'guidedMeditation']);
+
+
+
+    Route::post('user-video-activity', [ApiUserVideoActivityController::class, 'store']);
 
 
 
