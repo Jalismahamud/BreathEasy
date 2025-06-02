@@ -12,7 +12,6 @@ class ContentTypeSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            'All',
             'Stress relief' ,
             'Improve flexibility',
             'Improve posture',
