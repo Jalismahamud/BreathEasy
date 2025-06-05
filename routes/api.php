@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Backend\ApiPostController;
 use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Backend\ApiWaterController;
 use App\Http\Controllers\Web\Backend\CategoryController;
+use App\Http\Controllers\Api\Backend\ApiReportController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Backend\ApiContentController;
 use App\Http\Controllers\Web\Backend\DailyVideoController;
@@ -86,13 +87,20 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/vinyasa-yoga',[ApiContentController::class,'vinyasaYoga']);
     Route::get('/restorative -yoga',[ApiContentController::class,'restorativeYoga']);
     Route::get('/yogic-bits',[ApiContentController::class,'yogicBits']);
+    Route::get('/yogic-bits/details/{id}',[ApiContentController::class,'yogicBitsDetails']);
     Route::get('/guided-meditation',[ApiContentController::class,'guidedMeditation']);
 
     Route::get('latest/guided-meditation',[ApiContentController::class,'latestGuidedMeditation']);
 
 
+
+
+
     Route::get('user-video-activity', [ApiUserVideoActivityController::class, 'index']);
     Route::post('user-video-activity/store', [ApiUserVideoActivityController::class, 'store']);
+
+    Route::get('/overall-activity' , [ApiReportController::class, 'overallActivity']);
+    Route::get('/overall-statistics' , [ApiReportController::class, 'overallStatistics']);
 
 
 

@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Content;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
@@ -222,6 +223,52 @@ class ApiContentController extends Controller
         }
     }
 
+
+    public function yogicBitsDetails(Request $request, $id)
+    {
+        try {
+            $content = Content::with(['category', 'contentType'])->find($id);
+
+            if (!$content || $content->category_id !== 4) {
+                return $this->error([], 'Content not found or invalid category.', 404);
+            }
+
+             if (auth('api')->check()) {
+                $userId = auth('api')->id();
+
+
+                $hasViewed = DB::table('pose_learns')
+                    ->where('user_id', $userId)
+                    ->where('content_id', $content->id)
+                    ->exists();
+
+                if (!$hasViewed) {
+                    DB::table('pose_learns')->insert([
+                        'user_id' => $userId,
+                        'content_id' => $content->id,
+                        'viewed_at' => now(),
+                    ]);
+                }
+            }
+
+            $formatted = [
+                'id'            => $content->id,
+                'title'         => $content->title,
+                'description'   => $content->description,
+                'image'         => $content->image ? url($content->image) : null,
+                'video'         => $content->video ? url($content->video) : null,
+                'video_duration'=> $content->video_length ?? null,
+                'level'         => $content->type,
+                'type'          => $content->contentType->title ?? null,
+            ];
+
+            return $this->success($formatted, 'Content fetched successfully.', 200);
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return $this->error([], $e->getMessage(), 422);
+        }
+    }
+
     public function guidedMeditation(Request $request)
     {
         try {
@@ -278,7 +325,7 @@ class ApiContentController extends Controller
                 ->where('category_id', 5)
                 ->latest()
                 ->take(4)
-                ->get(); 
+                ->get();
 
             if ($results->isEmpty()) {
                 return $this->error([], 'No content found.', 404);
