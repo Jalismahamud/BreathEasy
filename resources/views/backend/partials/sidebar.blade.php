@@ -82,6 +82,18 @@
                     </a>
                 </li>
 
+                <li class="slide">
+                    <a class="side-menu__item {{ request()->routeIs('content') ? 'has-link' : '' }}"
+                        href="{{ route('admin.content.guided-meditations.index') }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            class="side-menu__icon" viewBox="0 0 24 24">
+                            <path
+                                d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828a2 2 0 0 0-.586-1.414l-5.828-5.828A2 2 0 0 0 12.172 1H6zm7 1.414L18.586 9H14a1 1 0 0 1-1-1V3.414zM8 12a1 1 0 1 1 0-2h8a1 1 0 1 1 0 2H8zm0 4a1 1 0 1 1 0-2h8a1 1 0 1 1 0 2H8zm0 4a1 1 0 1 1 0-2h5a1 1 0 1 1 0 2H8z" />
+                        </svg>
+                        <span class="side-menu__label">Guaided Meditation</span>
+                    </a>
+                </li>
+
 
                 {{-- <li class="slide">
                     <a class="side-menu__item" data-bs-toggle="slide" href="#">

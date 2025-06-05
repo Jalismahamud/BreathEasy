@@ -67,7 +67,9 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::delete('/note/delete/{note_id}', [ApiNoteController::class, 'delete']);
 
 
+    Route::get('/mood', [ApiMoodController::class, 'index']);
     Route::post('/mood/create', [ApiMoodController::class, 'storeOrUpdate']);
+
 
 
 
@@ -89,8 +91,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('latest/guided-meditation',[ApiContentController::class,'latestGuidedMeditation']);
 
 
-
-    Route::post('user-video-activity', [ApiUserVideoActivityController::class, 'store']);
+    Route::get('user-video-activity', [ApiUserVideoActivityController::class, 'index']);
+    Route::post('user-video-activity/store', [ApiUserVideoActivityController::class, 'store']);
 
 
 

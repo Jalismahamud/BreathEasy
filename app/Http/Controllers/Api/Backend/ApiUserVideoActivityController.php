@@ -13,6 +13,41 @@ class ApiUserVideoActivityController extends Controller
 {
     use ApiResponse;
 
+       public function index(Request $request)
+    {
+        try {
+            $user = auth('api')->user();
+            if (!$user) {
+                return $this->error([], 'Unauthorized', 401);
+            }
+            $query = UserVideoActivity::with(['content.category', 'content.contentType'])->where('user_id', $user->id);
+
+           
+            if ($request->has('date')) {
+                $date = $request->input('date');
+                $query->whereDate('created_at', $date);
+            }
+
+            $activities = $query->get()->map(function ($activity) {
+                $content = $activity->content;
+                return [
+                    'id' => $activity->id,
+                    'content_id' => $activity->content_id,
+                    'watched_minutes' => round($activity->watched_seconds / 60, 2),
+                    'progress' => $activity->progress,
+                    'completed' => $activity->completed ? true : false,
+                    'image' => ($content && $content->image) ? url($content->image) : null,
+                    'title' => $content ? $content->title : null,
+                    'category' => $content && $content->category ? $content->category->title : null,
+                    'content_type' => $content && $content->type ? $content->type : null,
+                ];
+            });
+            return $this->success($activities, 'User activities fetched', 200);
+        } catch (\Exception $e) {
+            return $this->error([], $e->getMessage(), 500);
+        }
+    }
+
     public function store(Request $request)
     {
         try {
@@ -55,20 +90,5 @@ class ApiUserVideoActivityController extends Controller
         }
     }
 
-    // Get all activities for a user
-    public function index(Request $request)
-    {
-        try {
-            $user = auth('api')->user();
-            if (!$user) {
-                return $this->error([], 'Unauthorized', 401);
-            }
-            $activities = UserVideoActivity::with('content')
-                ->where('user_id', $user->id)
-                ->get();
-            return $this->success($activities, 'User activities fetched', 200);
-        } catch (\Exception $e) {
-            return $this->error([], $e->getMessage(), 500);
-        }
-    }
+
 }

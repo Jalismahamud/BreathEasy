@@ -22,7 +22,7 @@ class DailyVideoController extends Controller
             $today = Carbon::today('UTC');
             $videos = DailyVideo::whereDate('created_at', $today)->get();
             if ($videos->isEmpty()) {
-                return $this->error([], 'Video not found.', 404);
+                return $this->error([], 'Video not found.', 200);
             }
             $video = $videos->random();
             $video['video'] = url($video->video);

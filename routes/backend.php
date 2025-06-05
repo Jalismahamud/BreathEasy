@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\Backend\UserListController;
 use App\Http\Controllers\Web\Backend\DashboardController;
 use App\Http\Controllers\Web\Backend\DailyVideoController;
 use App\Http\Controllers\Web\Backend\CMS\AuthPageController;
+use App\Http\Controllers\Web\Backend\GuidedMeditationController;
 use App\Http\Controllers\Web\Backend\Settings\ProfileController;
 use App\Http\Controllers\Web\Backend\Settings\SettingController;
 use App\Http\Controllers\Web\Backend\Settings\DynamicPageController;
@@ -36,29 +37,40 @@ Route::controller(ProfileController::class)->group(function () {
 
 
 Route::prefix('category')->name('admin.category.')->group(function () {
-    Route::get('/', [CategoryController::class, 'index'])->name('index');             
-    Route::post('/store', [CategoryController::class, 'store'])->name('store');      
-    Route::get('/edit/{id}', [CategoryController::class, 'edit'])->name('edit');     
+    Route::get('/', [CategoryController::class, 'index'])->name('index');
+    Route::post('/store', [CategoryController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [CategoryController::class, 'edit'])->name('edit');
     Route::put('/update/{id}', [CategoryController::class, 'update'])->name('update');
-    Route::delete('/delete/{id}', [CategoryController::class, 'destroy'])->name('destroy'); 
-    Route::post('/status/{id}', [CategoryController::class, 'status'])->name('status');     
+    Route::delete('/delete/{id}', [CategoryController::class, 'destroy'])->name('destroy');
+    Route::post('/status/{id}', [CategoryController::class, 'status'])->name('status');
 });
 
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('daily-videos', [DailyVideoController::class, 'index'])->name('admin.daily-video.index');
     Route::post('daily-videos', [DailyVideoController::class, 'createOrUpdate'])->name('admin.daily-video.createOrUpdate');
 });
 
 
 
-Route::prefix('admin/content')->name('admin.content.')->group(function () {
+Route::prefix('content')->name('admin.content.')->group(function () {
     Route::get('/', [ContentController::class, 'index'])->name('index');
     Route::get('/create', [ContentController::class, 'create'])->name('create');
     Route::post('/store', [ContentController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [ContentController::class, 'edit'])->name('edit');
     Route::put('/update/{id}', [ContentController::class, 'update'])->name('update');
     Route::delete('/destroy/{id}', [ContentController::class, 'destroy'])->name('destroy');
+});
+
+
+
+Route::prefix('content/guided-meditations')->name('admin.content.guided-meditations.')->group(function () {
+    Route::get('/', [GuidedMeditationController::class, 'index'])->name('index');
+    Route::get('/create', [GuidedMeditationController::class, 'create'])->name('create');
+    Route::post('/store', [GuidedMeditationController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [GuidedMeditationController::class, 'edit'])->name('edit');
+    Route::put('/update/{id}', [GuidedMeditationController::class, 'update'])->name('update');
+    Route::delete('/destroy/{id}', [GuidedMeditationController::class, 'destroy'])->name('destroy');
 });
 
 
@@ -91,7 +103,7 @@ Route::prefix('cms')->name('admin.cms.')->group(function () {
 
 
 
-   
+
 
 });
 
