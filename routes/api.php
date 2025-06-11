@@ -80,6 +80,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/water/goal', [ApiWaterController::class, 'setGoal']);
 
 
+    Route::get('/user-info', [ApiContentController::class, 'userInfo']);
+    Route::get('/search', [ApiContentController::class, 'search']);
     Route::get('/daily-video',[DailyVideoController::class,'dailyVideo']);
 
 

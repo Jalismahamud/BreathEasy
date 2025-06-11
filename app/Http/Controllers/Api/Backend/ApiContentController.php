@@ -14,6 +14,55 @@ class ApiContentController extends Controller
 {
     use ApiResponse;
 
+    public function userInfo()
+    {
+        try {
+            $user = auth('api')->user();
+            if (!$user) {
+                return $this->error([], 'Unauthorized', 401);
+            }
+
+            $formatted = [
+                'id' => $user->id,
+                'name' => $user->f_name . ' ' . $user->l_name,
+                'avatar' => $user->avatar ? url($user->avatar) : null,
+            ];
+
+            return $this->success($formatted, 'User info fetched successfully.', 200);
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return $this->error([], $e->getMessage(), 422);
+        }
+    }
+
+
+    public function search(Request $request)
+    {
+        try {
+
+            $query = $request->input('search');
+            $results = Content::where(function($q) use ($query) {
+                    $q->where('title', 'like', '%' . $query . '%');
+                })
+                ->orderByDesc('id')
+                ->limit(10)->get();
+
+            $formatted = $results->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'image' => $item->image ? url($item->image) : null,
+                    'video' => $item->video ? url($item->video) : null,
+                ];
+            });
+
+            return $this->success($formatted, 'Search results fetched successfully.', 200);
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            return $this->error([], $e->getMessage(), 422);
+        }
+    }
+
     private function applyDurationFilter($query, $duration)
     {
         if ($duration === '0-10') {
