@@ -35,42 +35,52 @@ class DailyVideoController extends Controller
 
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $videos = DailyVideo::latest()->paginate(10);
-        return view('backend.layouts.daily_video.index', compact('videos'));
+        $today = Carbon::today('UTC');
+        $selectedMonth = (int) $request->query('month', $today->month);
+        $selectedYear = (int) $request->query('year', $today->year);
+
+        // Fetch all videos for the selected month and year
+        $videos = DailyVideo::whereYear('created_at', $selectedYear)
+            ->whereMonth('created_at', $selectedMonth)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return view('backend.layouts.daily_video.index', compact('videos', 'selectedMonth', 'selectedYear'));
     }
 
     public function createOrUpdate(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'video' => 'required',
-        'video.*' => 'file|mimetypes:video/mp4',
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'video' => 'required|file|mimetypes:video/mp4',
+        ]);
 
-    if ($validator->fails()) {
-        return redirect()->back()->withErrors($validator)->withInput();
-    }
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-    try {
-        $today = Carbon::today('UTC');
-        $uploadedCount = 0;
-        if ($request->hasFile('video')) {
-            foreach ($request->file('video') as $file) {
+        try {
+            $today = Carbon::today('UTC');
+            // Delete any existing video for today
+            $existing = DailyVideo::whereDate('created_at', $today)->first();
+            if ($existing) {
+                Helper::deleteImage($existing->video);
+                $existing->delete();
+            }
+            if ($request->hasFile('video')) {
+                $file = $request->file('video');
                 $videoPath = Helper::uploadImage($file, 'daily-videos');
                 DailyVideo::create([
                     'video' => $videoPath,
                 ]);
-                $uploadedCount++;
+                session()->put('t-success', 'Video uploaded successfully.');
             }
-            session()->put('t-success', $uploadedCount . ' video(s) uploaded successfully.');
+        } catch (Exception $e) {
+            Log::error('Daily Video Error: ' . $e->getMessage());
+            session()->put('t-error', 'Something went wrong. Please try again.');
         }
-    } catch (Exception $e) {
-        Log::error('Daily Video Error: ' . $e->getMessage());
-        session()->put('t-error', 'Something went wrong. Please try again.');
+
+        return redirect()->back();
     }
-
-    return redirect()->back();
-}
-
 }

@@ -55,8 +55,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col">
-
-                                        <p class="text-muted fs-13 mb-0">Total Blogs</p>
+                                        <h3 class="mb-2 fw-semibold">{{ $totalCategory }}</h3>
+                                        <p class="text-muted fs-13 mb-0">Total Categories</p>
                                     </div>
                                     <div class="col col-auto top-icn dash">
                                         <div class="counter-icon bg-warning dash ms-auto box-shadow-warning">
@@ -83,8 +83,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col">
-
-                                        <p class="text-muted fs-13 mb-0">Total News</p>
+                                        <h3 class="mb-2 fw-semibold">{{ $totalContent }}</h3>
+                                        <p class="text-muted fs-13 mb-0">Total Content</p>
                                     </div>
                                     <div class="col col-auto top-icn dash">
                                         <div class="counter-icon bg-secondary dash ms-auto box-shadow-secondary">
@@ -106,7 +106,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col">
-
+                                        <h3 class="mb-2 fw-semibold">{{ $faq }}</h3>
                                         <p class="text-muted fs-13 mb-0">Total Faqs</p>
                                     </div>
                                     <div class="col col-auto top-icn dash">

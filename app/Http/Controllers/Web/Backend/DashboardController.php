@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers\Web\Backend;
 
-use App\Models\CMS;
 use App\Models\User;
-use App\Enums\SectionEnum;
 use App\Http\Controllers\Controller;
-use App\Models\Faq;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -15,11 +12,17 @@ class DashboardController extends Controller
     {
 
         $totalUser = User::where('role', 'user')->count();
-      
+        $faq =  DB::table('faqs')->count();
+        $totalCategory = DB::table('categories')->count();
+        $totalContent = DB::table('contents')->count();
+
 
         return view('backend.layouts.dashboard', compact(
             'totalUser',
-           
+            'faq',
+            'totalCategory',
+            'totalContent'
+
         ));
     }
 }

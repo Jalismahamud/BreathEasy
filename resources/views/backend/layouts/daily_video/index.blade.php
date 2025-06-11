@@ -106,17 +106,17 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 9999;
-            width: 420px;
-            max-width: 95vw;
+            width: 540px;
+            max-width: 98vw;
             background: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 8px 32px rgba(44, 62, 80, 0.25);
-            padding: 1.5rem 2rem;
+            padding: 2rem 2.5rem;
             text-align: center;
         }
         .calendar-hover-card video {
-            width: 400px;
-            max-width: 90vw;
+            width: 480px;
+            max-width: 95vw;
             border-radius: 0.5rem;
         }
         .calendar-hover-card .close-btn {
@@ -129,20 +129,10 @@
             color: #888;
             cursor: pointer;
         }
-        .calendar-hover-card .play-btn {
-            display: inline-block;
+        .calendar-hover-card .close-hint {
+            color: #888;
+            font-size: 0.95rem;
             margin-top: 0.5rem;
-            background: #22c55e;
-            color: #fff;
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .calendar-hover-card .play-btn:hover {
-            background: #16a34a;
         }
         .calendar-year-scroll {
             max-height: 200px;
@@ -153,48 +143,65 @@
             background: #f8fafc;
         }
         .calendar-hover-card-list {
-            display: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: absolute;
             top: 100%;
             left: 50%;
             transform: translate(-50%, 10px);
             z-index: 10;
             background: #fff;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.15);
-            padding: 0.5rem 1rem;
-            min-width: 240px;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
+            padding: 1rem 1.5rem;
+            min-width: 120px;
             text-align: center;
             white-space: nowrap;
-            display: flex;
-            flex-direction: row;
-            gap: 1rem;
-            max-width: 90vw;
+            max-width: 95vw;
             overflow-x: auto;
-        }
-        .calendar-table td.has-video:hover .calendar-hover-card-list {
-            display: flex;
+            gap: 0;
         }
         .calendar-hover-card-video-thumb {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0.5rem 0.5rem 0.5rem 0;
+            margin: 0;
             cursor: pointer;
             vertical-align: top;
-            min-width: 110px;
+            min-width: 100px;
+            padding: 0.25rem 0.5rem;
         }
         .calendar-hover-card-video-thumb video {
             border: 2px solid #e0e7ef;
             transition: border 0.2s;
+            width: 100px !important;
+            height: 50px !important;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            background: #f8fafc;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+            display: block;
+            margin: 0 auto;
         }
         .calendar-hover-card-video-thumb:hover video {
             border: 2px solid #3b82f6;
+        }
+        .calendar-hover-card-video-thumb .small.text-muted {
+            margin-top: 0.25rem;
+            font-size: 0.95rem;
+            color: #666;
+            text-align: center;
         }
     </style>
 @endpush
 
 @section('content')
+@php
+    $today = \Carbon\Carbon::today('UTC');
+    $selectedMonth = isset($selectedMonth) ? $selectedMonth : (int) request('month', $today->month);
+    $selectedYear = isset($selectedYear) ? $selectedYear : (int) request('year', $today->year);
+@endphp
 <div class="app-content main-content mt-0">
     <div class="side-app">
         <div class="main-container container-fluid">
@@ -213,7 +220,7 @@
                 <div class="mb-3">
                     <label for="video" class="form-label">Video:</label>
                     <div id="video-preview-container" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;"></div>
-                    <input type="file" name="video[]" id="video" multiple
+                    <input type="file" name="video" id="video"
                         class="form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4" accept="video/mp4" style="padding: 0.5rem; border-radius: 0.5rem; border: 1.5px solid #3b82f6; background: #f8fafc;" />
                     <div id="video-error" class="text-danger mt-1"></div>
                     @error('video')
@@ -223,6 +230,22 @@
                 <button type="submit" class="btn btn-primary mt-2">Save Video</button>
             </form>
             <hr>
+            <div class="d-flex align-items-center mb-3">
+                <label for="month-filter" class="me-2 mb-0">Month:</label>
+                <select id="month-filter" class="form-select me-3" style="width: 120px; display: inline-block;">
+                    @for ($m = 1; $m <= 12; $m++)
+                        <option value="{{ $m }}" @if($m == $selectedMonth) selected @endif>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
+                    @endfor
+                </select>
+                <label for="year-filter" class="me-2 mb-0">Year:</label>
+                <select id="year-filter" class="form-select" style="width: 100px; display: inline-block;">
+                    @for ($y = $today->year - 1; $y <= $today->year + 5; $y++)
+                        <option value="{{ $y }}" @if($y == $selectedYear) selected @endif>{{ $y }}</option>
+                    @endfor
+                </select>
+                <button id="filter-btn" class="btn btn-outline-primary ms-3">Filter</button>
+                <button id="reset-btn" class="btn btn-outline-secondary ms-2">Reset Filter</button>
+            </div>
             <h5 class="mt-4">Calendar View</h5>
             @php
                 $today = \Carbon\Carbon::today();
@@ -257,15 +280,14 @@
                     <td class="{{ $date->isToday() ? 'today' : '' }} {{ isset($calendar[$date->toDateString()]) ? 'has-video' : '' }}" data-date="{{ $date->toDateString() }}">
                         <div>{{ $date->format('j') }}</div>
                         @if(isset($calendar[$date->toDateString()]))
+                            @php $video = $calendar[$date->toDateString()][0]; @endphp
                             <div class="calendar-hover-card-list">
-                                @foreach($calendar[$date->toDateString()] as $video)
-                                    <div class="calendar-hover-card-video-thumb" data-video-url="{{ asset($video->video) }}" data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
-                                        <video muted style="width: 100px; height: 60px; border-radius: 0.5rem; object-fit: cover;">
-                                            <source src="{{ asset($video->video) }}" type="video/mp4">
-                                        </video>
-                                        <div class="small text-muted">{{ $video->created_at->format('H:i') }}</div>
-                                    </div>
-                                @endforeach
+                                <div class="calendar-hover-card-video-thumb" data-video-url="{{ asset($video->video) }}" data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
+                                    <video muted style="width: 50px; height: 30px; border-radius: 0.5rem; object-fit: cover;">
+                                        <source src="{{ asset($video->video) }}" type="video/mp4">
+                                    </video>
+                                    <div class="small text-muted">{{ $video->created_at->format('H:i') }}</div>
+                                </div>
                             </div>
                         @endif
                     </td>
@@ -289,6 +311,34 @@
         setTimeout(function() {
             $('.auto-dismiss').fadeOut('slow');
         }, 5000);
+
+        // Month and year filter
+        $('#month-filter, #year-filter').on('change', function() {
+            var selectedMonth = $('#month-filter').val();
+            var selectedYear = $('#year-filter').val();
+            $('.calendar-table td').each(function() {
+                var cellDate = $(this).data('date');
+                if (!cellDate) return;
+                var dateObj = new Date(cellDate);
+                var show = true;
+                if (selectedMonth && (dateObj.getMonth() + 1) != selectedMonth) show = false;
+                if (selectedYear && dateObj.getFullYear() != selectedYear) show = false;
+                $(this).toggle(show);
+            });
+        });
+
+        $('#filter-btn').on('click', function() {
+            var month = $('#month-filter').val();
+            var year = $('#year-filter').val();
+            window.location.href = '?month=' + month + '&year=' + year;
+        });
+
+        $('#reset-btn').on('click', function() {
+            const today = new Date();
+            const month = today.getMonth() + 1;
+            const year = today.getFullYear();
+            window.location.href = '?month=' + month + '&year=' + year;
+        });
 
         // Show/hide video list on hover
         $(document).on('mouseenter', '.calendar-table td.has-video', function() {
@@ -316,7 +366,7 @@
             if (cardOpen && cardEl) { cardEl.remove(); cardOpen = false; }
             cardEl = $('<div class="calendar-hover-card" style="display:block;">' +
                 '<button class="close-btn" title="Close">&times;</button>' +
-                '<video controls poster="{{ asset('default/video.png') }}" style="width: 300px; max-width: 90vw; border-radius: 0.5rem;">' +
+                '<video controls poster="{{ asset('default/video.png') }}" style="width: 480px; max-width: 95vw; border-radius: 0.5rem;">' +
                 '<source src="' + videoUrl + '" type="video/mp4">Your browser does not support the video tag.</video>' +
                 '<div class="small text-muted mt-1">Uploaded: ' + uploaded + '</div>' +
                 '<div class="close-hint">Double click video for fullscreen. Click outside to close.</div>' +

@@ -87,8 +87,8 @@
                         href="{{ route('admin.content.guided-meditations.index') }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                             class="side-menu__icon" viewBox="0 0 24 24">
-                            <path
-                                d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828a2 2 0 0 0-.586-1.414l-5.828-5.828A2 2 0 0 0 12.172 1H6zm7 1.414L18.586 9H14a1 1 0 0 1-1-1V3.414zM8 12a1 1 0 1 1 0-2h8a1 1 0 1 1 0 2H8zm0 4a1 1 0 1 1 0-2h8a1 1 0 1 1 0 2H8zm0 4a1 1 0 1 1 0-2h5a1 1 0 1 1 0 2H8z" />
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6 0 2.21 1.2 4.15 3 5.19V17h6v-1.81c1.8-1.04 3-2.98 3-5.19 0-3.31-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4 0-2.21 1.79-4 4-4s4 1.79 4 4c0 2.21-1.79 4-4 4z"/>
+                            <circle cx="12" cy="12" r="2.5"/>
                         </svg>
                         <span class="side-menu__label">Guaided Meditation</span>
                     </a>

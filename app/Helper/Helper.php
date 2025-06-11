@@ -1,17 +1,8 @@
 <?php
 
 namespace App\Helper;
-
-use Exception;
-use App\Models\Post;
-use Firebase\JWT\JWT;
-use App\Models\PostImage;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
+
 use getID3;
 
 class Helper
