@@ -41,9 +41,9 @@ class ApiContentController extends Controller
         try {
 
             $query = $request->input('search');
-            $results = Content::where(function($q) use ($query) {
-                    $q->where('title', 'like', '%' . $query . '%');
-                })
+            $results = Content::where(function ($q) use ($query) {
+                $q->where('title', 'like', '%' . $query . '%');
+            })
                 ->orderByDesc('id')
                 ->limit(10)->get();
 
@@ -282,7 +282,7 @@ class ApiContentController extends Controller
                 return $this->error([], 'Content not found or invalid category.', 404);
             }
 
-             if (auth('api')->check()) {
+            if (auth('api')->check()) {
                 $userId = auth('api')->id();
 
 
@@ -306,7 +306,7 @@ class ApiContentController extends Controller
                 'description'   => $content->description,
                 'image'         => $content->image ? url($content->image) : null,
                 'video'         => $content->video ? url($content->video) : null,
-                'video_duration'=> $content->video_length ?? null,
+                'video_duration' => $content->video_length ?? null,
                 'level'         => $content->type,
                 'type'          => $content->contentType->title ?? null,
             ];
@@ -383,18 +383,32 @@ class ApiContentController extends Controller
             $formatted = [
                 'category' => $results->first()->category->title ?? 'Guided Meditation',
                 'contents' => $results->map(function ($item) {
+                   
+                    $durationSeconds = $item->video_length ?? 0;
+                    $minutes = floor($durationSeconds / 60);
+                    $seconds = $durationSeconds % 60;
+
+                    if ($minutes > 0 && $seconds > 0) {
+                        $video_duration = sprintf('%d min %02d sec', $minutes, $seconds);
+                    } elseif ($minutes > 0) {
+                        $video_duration = sprintf('%d min', $minutes);
+                    } else {
+                        $video_duration = sprintf('%d sec', $seconds);
+                    }
+
                     return [
                         'id'            => $item->id,
                         'title'         => $item->title,
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
                         'video'         => $item->video ? url($item->video) : null,
-                        'video_duration'=> $item->video_length ?? null,
+                        'video_duration' => $video_duration,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
                     ];
                 })->values(),
             ];
+
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
         } catch (Exception $e) {
