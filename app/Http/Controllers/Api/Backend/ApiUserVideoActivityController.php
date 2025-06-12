@@ -22,7 +22,7 @@ class ApiUserVideoActivityController extends Controller
             }
             $query = UserVideoActivity::with(['content.category', 'content.contentType'])->where('user_id', $user->id);
 
-           
+
             if ($request->has('date')) {
                 $date = $request->input('date');
                 $query->whereDate('created_at', $date);
@@ -33,7 +33,7 @@ class ApiUserVideoActivityController extends Controller
                 return [
                     'id' => $activity->id,
                     'content_id' => $activity->content_id,
-                    'watched_minutes' => round($activity->watched_seconds / 60, 2),
+                    'watched_minutes' => (int) floor($activity->watched_seconds / 60),
                     'progress' => $activity->progress,
                     'completed' => $activity->completed ? true : false,
                     'image' => ($content && $content->image) ? url($content->image) : null,
