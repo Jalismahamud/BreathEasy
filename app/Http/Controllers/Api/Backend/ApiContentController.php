@@ -384,7 +384,7 @@ class ApiContentController extends Controller
                 'category' => $results->first()->category->title ?? 'Guided Meditation',
                 'contents' => $results->map(function ($item) {
 
-                   $durationSeconds = (int) ($item->video_length ?? 0);
+                   $durationSeconds = (double) ($item->video_length ?? 0);
                     $minutes = floor($durationSeconds / 60);
                     $seconds = $durationSeconds % 60;
 
