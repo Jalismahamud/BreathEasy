@@ -13,7 +13,7 @@ class ApiUserVideoActivityController extends Controller
 {
     use ApiResponse;
 
-       public function index(Request $request)
+    public function index(Request $request)
     {
         try {
             $user = auth('api')->user();
@@ -30,28 +30,31 @@ class ApiUserVideoActivityController extends Controller
 
             $activities = $query->get()->map(function ($activity) {
                 $content = $activity->content;
+
+                $minutes = floor($activity->watched_seconds / 60);
+                $seconds = $activity->watched_seconds % 60;
+
+                if ($minutes > 0 && $seconds > 0) {
+                    $watched_time = sprintf('%d min %02d sec', $minutes, $seconds);
+                } elseif ($minutes > 0) {
+                    $watched_time = sprintf('%d min', $minutes);
+                } else {
+                    $watched_time = sprintf('%d sec', $seconds);
+                }
+
                 return [
                     'id' => $activity->id,
                     'content_id' => $activity->content_id,
-                    'watched_minutes' => function() use ($activity) {
-                        $minutes = floor($activity->watched_seconds / 60);
-                        $seconds = $activity->watched_seconds % 60;
-                        if ($minutes > 0 && $seconds === 0) {
-                            return $minutes . ' min';
-                        } elseif ($minutes > 0) {
-                            return $minutes . ' min ' . sprintf('%02d sec', $seconds);
-                        } else {
-                            return $seconds . ' sec';
-                        }
-                    },
+                    'watched_minutes' => $watched_time,
                     'progress' => number_format(min(100, $activity->progress * 100), 2),
-                    'completed' => $activity->completed ? true : false,
+                    'completed' => (bool) $activity->completed,
                     'image' => ($content && $content->image) ? url($content->image) : null,
                     'title' => $content ? $content->title : null,
                     'category' => $content && $content->category ? $content->category->title : null,
                     'content_type' => $content && $content->type ? $content->type : null,
                 ];
             });
+
             return $this->success($activities, 'User activities fetched', 200);
         } catch (\Exception $e) {
             return $this->error([], $e->getMessage(), 500);
@@ -99,6 +102,4 @@ class ApiUserVideoActivityController extends Controller
             return $this->error([], $e->getMessage(), 500);
         }
     }
-
-
 }
