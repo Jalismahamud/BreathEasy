@@ -33,7 +33,7 @@ class ApiUserVideoActivityController extends Controller
                 return [
                     'id' => $activity->id,
                     'content_id' => $activity->content_id,
-                    'watched_minutes' => (int) floor($activity->watched_seconds / 60),
+                    'watched_minutes' => sprintf('%d min %02d sec', floor($activity->watched_seconds / 60), $activity->watched_seconds % 60),
                     'progress' => $activity->progress,
                     'completed' => $activity->completed ? true : false,
                     'image' => ($content && $content->image) ? url($content->image) : null,
