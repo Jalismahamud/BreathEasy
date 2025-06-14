@@ -160,4 +160,61 @@ class ApiPostReactController extends Controller
             return $this->error([], $e->getMessage(), 500);
         }
     }
+
+
+    public function toggleCommentLike(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'comment_id' => ['required', 'exists:post_reacts,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error([], $validator->errors()->first(), 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $comment = PostReact::find($request->comment_id);
+            if (!$comment) {
+                return $this->error([], 'Comment not found.', 404);
+            }
+            $userId = auth('api')->id();
+           
+            $react = PostReact::where('post_id', $comment->post_id)
+                ->where('user_id', $userId)
+                ->where('parent_comment_id', $comment->id)
+                ->first();
+
+            if ($react) {
+                $react->like = $react->like ? 0 : 1;
+                $react->save();
+                $message = $react->like ? 'Comment liked.' : 'Like removed from comment.';
+            } else {
+                $react = PostReact::create([
+                    'post_id' => $comment->post_id,
+                    'user_id' => $userId,
+                    'like' => 1,
+                    'parent_comment_id' => $comment->id,
+                ]);
+                $message = 'Comment liked.';
+            }
+            DB::commit();
+            $response = [
+                'comment_id' => $comment->id,
+                'like' => $react->like,
+                'is_comment_like' => true,
+            ];
+            return $this->success($response, $message, 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return $this->error([], $e->getMessage(), 500);
+        }
+    }
+
+    // Helper method to determine if a PostReact is a post like or comment like
+    private function isCommentLike(PostReact $react)
+    {
+        return !is_null($react->parent_comment_id);
+    }
 }
