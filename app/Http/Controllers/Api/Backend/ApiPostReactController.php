@@ -33,7 +33,7 @@ class ApiPostReactController extends Controller
                         'created_at' => $comment->created_at,
                         'user' => [
                             'id' => $comment->user->id,
-                            'name' => $comment->user->name,
+                            'name' => $comment->user->f_name . ' ' . $comment->user->l_name,
                             'avatar' => $comment->user->avatar ? url($comment->user->avatar) : null,
                         ],
                         'replies' => $comment->replies->map(function ($reply) {
@@ -43,7 +43,7 @@ class ApiPostReactController extends Controller
                                 'created_at' => $reply->created_at,
                                 'user' => [
                                     'id' => $reply->user->id,
-                                    'name' => $reply->user->name,
+                                    'name' => $reply->user->f_name . ' ' . $reply->user->l_name,
                                     'avatar' => $reply->user->avatar ? url($reply->user->avatar) : null,
                                 ],
                             ];
