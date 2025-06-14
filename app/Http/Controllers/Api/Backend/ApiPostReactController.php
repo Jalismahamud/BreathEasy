@@ -179,7 +179,7 @@ class ApiPostReactController extends Controller
                 return $this->error([], 'Comment not found.', 404);
             }
             $userId = auth('api')->id();
-           
+
             $react = PostReact::where('post_id', $comment->post_id)
                 ->where('user_id', $userId)
                 ->where('parent_comment_id', $comment->id)
@@ -202,7 +202,6 @@ class ApiPostReactController extends Controller
             $response = [
                 'comment_id' => $comment->id,
                 'like' => $react->like,
-                'is_comment_like' => true,
             ];
             return $this->success($response, $message, 200);
         } catch (\Exception $e) {
