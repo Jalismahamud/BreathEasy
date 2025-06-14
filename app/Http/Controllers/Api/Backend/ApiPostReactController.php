@@ -34,6 +34,7 @@ class ApiPostReactController extends Controller
                         'user' => [
                             'id' => $comment->user->id,
                             'name' => $comment->user->name,
+                            'avatar' => $comment->user->avatar ? url($comment->user->avatar) : null,
                         ],
                         'replies' => $comment->replies->map(function ($reply) {
                             return [
@@ -43,6 +44,7 @@ class ApiPostReactController extends Controller
                                 'user' => [
                                     'id' => $reply->user->id,
                                     'name' => $reply->user->name,
+                                    'avatar' => $reply->user->avatar ? url($reply->user->avatar) : null,
                                 ],
                             ];
                         }),
