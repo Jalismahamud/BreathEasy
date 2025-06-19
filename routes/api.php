@@ -84,6 +84,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/user-info', [ApiContentController::class, 'userInfo']);
     Route::get('/search', [ApiContentController::class, 'search']);
     Route::get('/daily-video',[DailyVideoController::class,'dailyVideo']);
+    Route::get('/daily-video/all',[DailyVideoController::class,'allDailyVideos']);
 
 
     Route::get('/hatha-yoga',[ApiContentController::class,'hathaYoga']);

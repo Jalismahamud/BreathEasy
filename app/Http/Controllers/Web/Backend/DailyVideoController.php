@@ -33,6 +33,30 @@ class DailyVideoController extends Controller
         }
     }
 
+    public function allDailyVideos()
+    {
+        try {
+            $data = DailyVideo::orderBy('created_at', 'desc')->get();
+
+            if ($data->isEmpty()) {
+                return $this->error([], 'No videos found.', 200);
+            }
+
+            $videos = $data->map(function ($video) {
+                return [
+                    'id' => $video->id,
+                    'video' => url($video->video),
+                    'created_at' => $video->created_at->diffForHumans(),
+                ];
+            });
+
+            return $this->success($videos, 'Videos fetched successfully.', 200);
+        } catch (Exception $e) {
+
+            return $this->error([], $e->getMessage(), 500);
+        }
+    }
+
 
 
     public function index(Request $request)
