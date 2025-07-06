@@ -14,17 +14,17 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         DB::table('settings')->insert([
-            'title'         => 'Flaya',
+            'title'         => 'BreathEasy',
             'phone'         => '123456789',
-            'email'         => 'info@flaya.com',
+            'email'         => 'info@breatheasy.com',
             'name'          => 'netrocat',
-            'copyright'     => 'Copyright © 2025 Flaya. All rights reserved.',
-            'description'   => "Flaya is a digital agency that creates and shares innovative digital product experiences tailored for startups and small businesses.
-                                Through this platform, our team showcases project updates, creative work, and industry insights—giving users a behind-the-scenes look at 
+            'copyright'     => 'Copyright © 2025 BreathEasy. All rights reserved.',
+            'description'   => "BreathEasy is a digital agency that creates and shares innovative digital product experiences tailored for startups and small businesses.
+                                Through this platform, our team showcases project updates, creative work, and industry insights—giving users a behind-the-scenes look at
                                 how we bring digital ideas to life.",
             'address'       => 'Cairo, Australia',
-            'keywords'      => 'Flaya',
-            'author'        => 'Isak',
+            'keywords'      => 'BreathEasy',
+            'author'        => 'Puppy',
             'created_at'    => now(),
             'updated_at'    => now(),
         ]);

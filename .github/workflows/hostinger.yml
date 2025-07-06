@@ -1,4 +1,4 @@
-name: Deploy project to puppy namecheap server
+name: Deploy project to Hostinger server
 on:
   push:
     branches:
