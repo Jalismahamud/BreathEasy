@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Mail\SendForgotOtpMail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ResetPasswordController extends Controller
@@ -37,7 +39,7 @@ class ResetPasswordController extends Controller
                 'otp_expires_at' => Carbon::now()->addMinutes(5),
             ]);
 
-            Mail::to($user->email)->send(new SendOtpMail($otp));
+            Mail::to($user->email)->send(new SendForgotOtpMail($otp , $user));
 
             return $this->success(['otp' => $otp], 'OTP sent successfully.', 200);
         } catch (Exception $e) {
@@ -155,7 +157,7 @@ class ResetPasswordController extends Controller
                 'otp_expires_at' => Carbon::now()->addMinutes(5),
             ]);
 
-            // Mail::to($user->email)->send(new SendOtpMail($otp));
+            Mail::to($user->email)->send(new SendOtpMail($otp , $user));
 
             return $this->success(['otp' => $otp], 'OTP resent successfully.', 200);
         } catch (Exception $e) {
