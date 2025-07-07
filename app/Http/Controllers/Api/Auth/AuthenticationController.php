@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Mail\SendOtpMail;
@@ -39,17 +40,25 @@ class AuthenticationController extends Controller
             $otp = rand(10000, 99999);
             $otpExpiresAt = now()->addMinutes(5);
 
-            $user = User::create([
-                'email' => $validatedData['email'],
-                'phone' => $validatedData['phone'],
-                'password' => Hash::make($validatedData['password']),
-                'role' => 'user',
-                'otp' => $otp,
-                'otp_expires_at' => $otpExpiresAt,
-            ]);
+            DB::beginTransaction();
+            try {
+                $user = User::create([
+                    'email' => $validatedData['email'],
+                    'phone' => $validatedData['phone'],
+                    'password' => Hash::make($validatedData['password']),
+                    'role' => 'user',
+                    'otp' => $otp,
+                    'otp_expires_at' => $otpExpiresAt,
+                ]);
 
-            // You can send the OTP via email or SMS here. Example:
-            Mail::to($user->email)->send(new SendOtpMail($otp ,$user));
+                // You can send the OTP via email or SMS here. Example:
+                Mail::to($user->email)->send(new SendOtpMail($otp ,$user));
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
 
             $userData = [
                 'id' => $user->id,
@@ -199,7 +208,7 @@ class AuthenticationController extends Controller
             ]);
 
             // You can send the OTP via email or SMS here. Example:
-            Mail::to($user->email)->send(new SendOtpMail($otp));
+            Mail::to($user->email)->send(new SendOtpMail($otp, $user));
 
             return $this->success(['otp' => $otp], 'OTP resent successfully.', 200);
         } catch (Exception $e) {
