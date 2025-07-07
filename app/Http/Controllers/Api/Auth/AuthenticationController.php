@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Auth;
 use Exception;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Mail\SendOtpMail;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -48,14 +49,14 @@ class AuthenticationController extends Controller
             ]);
 
             // You can send the OTP via email or SMS here. Example:
-            // Mail::to($user->email)->send(new SendOtpMail($otp));
+            Mail::to($user->email)->send(new SendOtpMail($otp ,$user));
 
             $userData = [
                 'id' => $user->id,
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'role' => $user->role,
-                'otp' => $otp, 
+                'otp' => $otp,
             ];
 
             return $this->success($userData, 'User registered successfully. Please verify OTP.', 201);
@@ -198,11 +199,11 @@ class AuthenticationController extends Controller
             ]);
 
             // You can send the OTP via email or SMS here. Example:
-            // Mail::to($user->email)->send(new SendOtpMail($otp));
+            Mail::to($user->email)->send(new SendOtpMail($otp));
 
             return $this->success(['otp' => $otp], 'OTP resent successfully.', 200);
         } catch (Exception $e) {
-            
+
             Log::error($e->getMessage());
             return $this->error([], $e->getMessage(), 500);
         }

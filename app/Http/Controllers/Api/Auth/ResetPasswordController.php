@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use Exception;
 use App\Models\User;
+use App\Mail\SendOtpMail;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -36,7 +37,7 @@ class ResetPasswordController extends Controller
                 'otp_expires_at' => Carbon::now()->addMinutes(5),
             ]);
 
-            // Mail::to($user->email)->send(new SendOtpMail($otp));
+            Mail::to($user->email)->send(new SendOtpMail($otp));
 
             return $this->success(['otp' => $otp], 'OTP sent successfully.', 200);
         } catch (Exception $e) {
