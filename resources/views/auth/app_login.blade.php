@@ -2,77 +2,112 @@
 <html lang="en">
 
 <head>
-    <title>Login</title>
-    <meta charset="utf-8" />
-    <meta name="description" content="" />
-    <meta name="keywords" content="" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh; /* Full screen height */
+    }
 
-    @include('backend.partials.styles')
+    .login-box {
+      width: 400px;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .login-box h1 {
+      margin-bottom: 25px;
+      font-size: 26px;
+      color: #333;
+    }
+
+    .login-box label {
+      display: block;
+      text-align: left;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #444;
+      font-size: 14px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 18px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .login-box input:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 6px rgba(74, 144, 226, 0.4);
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background: #4a90e2;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .login-box button:hover {
+      background: #357abd;
+    }
+
+    .login-box .extra {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .login-box .extra a {
+      color: #4a90e2;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-box .extra a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 
-<body id="kt_body" class="auth-bg">
-    <div class="d-flex flex-column flex-root">
-        <div class="d-flex flex-column flex-lg-row flex-column-fluid">
-            <div class="d-flex flex-column flex-lg-row-fluid py-10">
-                <div class="d-flex flex-center flex-column flex-column-fluid">
-                    <div class="w-lg-500px p-10 p-lg-15 mx-auto">
-                        <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form"
-                            action="{{ route('app.login.store') }}" method="POST">
-                            @csrf
-                            <div class="text-center mb-10">
-                                <h1 class="text-dark mb-3">User Sign In </h1>
-                                {{-- <div class="text-gray-400 fw-semibold fs-4">
-                                    New Here?
+<body>
+  <div class="login-box">
+    <h1>User Sign In</h1>
+   <form action="{{ route('app.login.store') }}" method="POST">
+    @csrf
+    <!-- Email -->
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required>
 
-                                    <a href="{{ route('register') }}" class="link-primary fw-bold">
-                                        Create an Account
-                                    </a>
-                                </div> --}}
-                            </div>
-                            <div class="fv-row mb-10">
-                                @if (session('status'))
-                                    {{ session('status') }}
-                                @endif
-                            </div>
-                            <div class="fv-row mb-10">
-                                <label class="form-label fs-6 fw-bold text-dark">Email</label>
-                                <input
-                                    class="form-control form-control-lg form-control-solid @error('email')  @enderror"
-                                    type="email" name="email" value="{{ old('email') }}" autocomplete="off" />
-                                @error('email')
-                                    <span class="d-block text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="fv-row mb-10">
-                                <div class="d-flex flex-stack mb-2">
-                                    <label class="form-label fw-bold text-dark fs-6 mb-0">Password</label>
-                                    {{-- <a href="password-reset.html" class="link-primary fs-6 fw-bold">
-                                        Forgot Password ?
-                                    </a> --}}
-                                </div>
-                                <input class="form-control form-control-lg form-control-solid" type="password"
-                                    name="password" autocomplete="off" />
-                                @error('password')
-                                    <span class="d-block text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
+    <!-- Password -->
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
-                            <div class="text-center">
-                                <button type="submit" id="kt_sign_in_submit" class="btn btn-lg btn-primary w-100 mb-5">
-                                    <span class="indicator-label">
-                                        Log In
-                                    </span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <button type="submit">Log In</button>
+</form>
 
-    @include('backend.partials.scripts')
+  </div>
 </body>
 
 </html>
