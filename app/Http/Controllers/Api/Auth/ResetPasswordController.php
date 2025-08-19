@@ -41,7 +41,7 @@ class ResetPasswordController extends Controller
 
             Mail::to($user->email)->send(new SendForgotOtpMail($otp , $user));
 
-            return $this->success(['otp' => $otp], 'OTP sent successfully.', 200);
+            return $this->success([], 'OTP sent successfully.', 200);
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return $this->error([], $e->getMessage(), 500);
@@ -159,7 +159,7 @@ class ResetPasswordController extends Controller
 
             Mail::to($user->email)->send(new SendOtpMail($otp , $user));
 
-            return $this->success(['otp' => $otp], 'OTP resent successfully.', 200);
+            return $this->success([], 'OTP resent successfully.', 200);
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return $this->error([], $e->getMessage(), 500);

@@ -65,7 +65,6 @@ class AuthenticationController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'role' => $user->role,
-                'otp' => $otp,
             ];
 
             return $this->success($userData, 'User registered successfully. Please verify OTP.', 201);
@@ -210,7 +209,7 @@ class AuthenticationController extends Controller
             // You can send the OTP via email or SMS here. Example:
             Mail::to($user->email)->send(new SendOtpMail($otp, $user));
 
-            return $this->success(['otp' => $otp], 'OTP resent successfully.', 200);
+            return $this->success([], 'OTP resent successfully.', 200);
         } catch (Exception $e) {
 
             Log::error($e->getMessage());
