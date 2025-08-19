@@ -53,6 +53,11 @@ class ApiContentController extends Controller
                     'title' => $item->title,
                     'image' => $item->image ? url($item->image) : null,
                     'video' => $item->video ? url($item->video) : null,
+                    'video_duration' => $item->video_length ?? null,
+                    'video_size' => $item->video_size ?? null,
+                    'level'         => $item->type,
+                    'type'    => $item->contentType->title ?? null,
+
                 ];
             });
 
