@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
+use Illuminate\Support\Facades\Cache;
+
 
 class AuthenticationController extends Controller
 {
@@ -23,12 +25,12 @@ class AuthenticationController extends Controller
 
     public function register(Request $request)
     {
-
         try {
             $validator = Validator::make($request->all(), [
+                'name' => ['required', 'string', 'max:255'],
+                'user_name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'unique:users,email'],
-                'phone' => ['required', 'string'],
-                'password' => ['required', 'string', 'min:8'],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
             ]);
 
             if ($validator->fails()) {
@@ -37,89 +39,103 @@ class AuthenticationController extends Controller
 
             $validatedData = $validator->validated();
 
-            $otp = rand(10000, 99999);
+            $otp = rand(1000, 9999);
             $otpExpiresAt = now()->addMinutes(5);
 
-            DB::beginTransaction();
-            try {
-                $user = User::create([
-                    'email' => $validatedData['email'],
-                    'phone' => $validatedData['phone'],
-                    'password' => Hash::make($validatedData['password']),
-                    'role' => 'user',
+            $email = $validatedData['email'];
+
+            $cacheData = array_merge($validatedData, [
+                'otp' => $otp,
+                'otp_expires_at' => $otpExpiresAt,
+            ]);
+
+            Cache::put("register_otp_{$email}", $otp, 300);
+            Cache::put("register_data_{$email}", $cacheData, 300);
+
+            // Send mail
+            Mail::to($email)->send(new SendOtpMail($otp, (object)$validatedData));
+
+            return $this->success(
+                [
+                    'message' => 'OTP has been sent to your email. Please verify to complete registration.',
+                    'name' => $validatedData['name'],
+                    'user_name' => $validatedData['user_name'],
+                    'email' => $email,
                     'otp' => $otp,
-                    'otp_expires_at' => $otpExpiresAt,
-                ]);
-
-                // You can send the OTP via email or SMS here. Example:
-                Mail::to($user->email)->send(new SendOtpMail($otp ,$user));
-
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollBack();
-                throw $e;
-            }
-
-            $userData = [
-                'id' => $user->id,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'role' => $user->role,
-            ];
-
-            return $this->success($userData, 'User registered successfully. Please verify OTP.', 201);
+                ],
+                'OTP Sent successfully.',
+                201
+            );
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            return $this->error([], $e->getMessage(), 500);
+            return $this->error([], 'Something went wrong: ' . $e->getMessage(), 500);
         }
     }
 
-     public function registrationVerifyOtp(Request $request)
+    public function registrationVerifyOtp(Request $request)
     {
         $validator = validator()->make($request->all(), [
-            'email' => ['required', 'email', 'exists:users,email'],
-            'otp' => ['required', 'digits:5'],
+            'email' => ['required', 'email'],
+            'otp' => ['required', 'digits:4'],
         ]);
 
         if ($validator->fails()) {
             return $this->error([], $validator->errors()->first(), 422);
         }
 
-        $user = User::where('email', $request->email)->first();
+        $email = $request->email;
+        $otp = $request->otp;
 
-        if (!$user) {
-            return $this->error([], 'User not found', 404);
+        $cachedOtp = Cache::get("register_otp_{$email}");
+        $cachedData = Cache::get("register_data_{$email}");
+
+        if (!$cachedOtp || !$cachedData) {
+            return $this->error([], 'OTP has expired or registration data not found.', 410);
         }
 
-        if ($user->otp !== $request->otp) {
-            return $this->error([], 'Your OTP is Invalid.', 409);
+        if ($otp != $cachedOtp) {
+            return $this->error([], 'Your OTP is invalid.', 403);
         }
 
-        if (Carbon::now()->gt($user->otp_expires_at)) {
-            return $this->error([], 'OTP has expired', 410);
+        if (now()->gt($cachedData['otp_expires_at'])) {
+            return $this->error([], 'OTP has expired.', 410);
         }
 
+        if (User::where('email', $email)->exists()) {
+            return $this->error([], 'Email already registered.', 409);
+        }
 
-        $user->update([
-            'email_verified_at' => Carbon::now(),
-            'is_otp_verified' => true,
-            'otp' => null,
-            'otp_expires_at' => null,
-        ]);
+        try {
+            $user = User::create([
+                'name' => $cachedData['name'],
+                'user_name' => $cachedData['user_name'],
+                'email' => $cachedData['email'],
+                'password' => Hash::make($cachedData['password']),
+                'is_otp_verified' => true,
+                'email_verified_at' => now(),
+                'role' => 'user',
+            ]);
 
+            $token = auth('api')->login($user);
 
-        $token = auth('api')->login($user);
+            Cache::forget("register_otp_{$email}");
+            Cache::forget("register_data_{$email}");
 
-        $userData = [
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'user_name' => $user->user_name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'is_otp_verified' => $user->is_otp_verified,
+                'token' => $token,
+            ];
 
-            'id' => $user['id'],
-            'email' => $user['email'],
-            'phone' => $user['phone'],
-            'role' => $user['role'] ?? null,
-            'token' => $token,
-        ];
-
-        return $this->success($userData, 'Registration successful.', 200);
+            return $this->success($userData, 'Otp verified successfully. You are now registered.', 200);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return $this->error([], 'Something went wrong: ' . $e->getMessage(), 500);
+        }
     }
 
 
