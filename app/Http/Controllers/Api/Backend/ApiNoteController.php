@@ -17,7 +17,7 @@ class ApiNoteController extends Controller
     public function index()
     {
         try {
-            $notes = Note::with('user')->latest()->get();
+            $notes = Note::with('user')->where('user_id', auth()->user()->id)->latest()->get();
 
             if ($notes->isEmpty()) {
                 return $this->success([], 'No notes found.', 200);
