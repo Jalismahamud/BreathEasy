@@ -38,4 +38,9 @@ class PostReact extends Model
     {
         return $this->hasMany(PostReact::class, 'parent_comment_id')->with('user');
     }
+
+    public function likes()
+    {
+        return $this->hasMany(PostReact::class, 'parent_comment_id')->where('like', 1);
+    }
 }

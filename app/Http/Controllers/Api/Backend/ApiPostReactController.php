@@ -19,9 +19,14 @@ class ApiPostReactController extends Controller
     public function allComments(Request $request, $postId)
     {
         try {
-            $post = Post::findOrFail($postId);
+            $post = Post::find($postId);
+
+            if (!$post) {
+                return $this->error([], 'Post not founds.', 404);
+            }
+
             $comments = PostReact::with(['replies', 'user'])
-                ->where('post_id', $postId)
+                ->where('post_id', $post->id)
                 ->whereNull('parent_comment_id')
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -31,6 +36,7 @@ class ApiPostReactController extends Controller
                         'comment' => $comment->comment,
                         'post_id' => $comment->post_id,
                         'created_at' => $comment->created_at,
+                        'is_like' => PostReact::where('parent_comment_id', $comment->id)->where('user_id', auth('api')->id())->where('like', 1)->exists() ? false : true,
                         'user' => [
                             'id' => $comment->user->id,
                             'name' => $comment->user->f_name . ' ' . $comment->user->l_name,
@@ -52,7 +58,7 @@ class ApiPostReactController extends Controller
                 });
             return $this->success($comments, 'All comments with replies fetched successfully.');
         } catch (Exception $e) {
-            return $this->error([], 'Post not found.', 404);
+            return $this->error([], 'Post not foundsss.', 404);
         } catch (Exception $e) {
             return $this->error([], $e->getMessage(), 500);
         }

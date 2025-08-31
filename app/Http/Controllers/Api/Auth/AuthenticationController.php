@@ -27,10 +27,11 @@ class AuthenticationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => ['required', 'string', 'max:255'],
-                'user_name' => ['required', 'string', 'max:255'],
+                'f_name' => ['nullable', 'string', 'max:255'],
+                'l_name' => ['nullable', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'unique:users,email'],
-                'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'phone' => ['required', 'string'],
+                'password' => ['required', 'string', 'min:8'],
             ]);
 
             if ($validator->fails()) {
@@ -39,7 +40,7 @@ class AuthenticationController extends Controller
 
             $validatedData = $validator->validated();
 
-            $otp = rand(1000, 9999);
+            $otp = rand(10000, 99999);
             $otpExpiresAt = now()->addMinutes(5);
 
             $email = $validatedData['email'];
@@ -58,10 +59,9 @@ class AuthenticationController extends Controller
             return $this->success(
                 [
                     'message' => 'OTP has been sent to your email. Please verify to complete registration.',
-                    'name' => $validatedData['name'],
-                    'user_name' => $validatedData['user_name'],
+                    'f_name' => $validatedData['f_name'],
+                    'l_name' => $validatedData['l_name'],
                     'email' => $email,
-                    'otp' => $otp,
                 ],
                 'OTP Sent successfully.',
                 201
@@ -76,7 +76,7 @@ class AuthenticationController extends Controller
     {
         $validator = validator()->make($request->all(), [
             'email' => ['required', 'email'],
-            'otp' => ['required', 'digits:4'],
+            'otp' => ['required', 'digits:5'],
         ]);
 
         if ($validator->fails()) {
@@ -107,8 +107,8 @@ class AuthenticationController extends Controller
 
         try {
             $user = User::create([
-                'name' => $cachedData['name'],
-                'user_name' => $cachedData['user_name'],
+                'f_name' => $cachedData['f_name'],
+                'l_name' => $cachedData['l_name'],
                 'email' => $cachedData['email'],
                 'password' => Hash::make($cachedData['password']),
                 'is_otp_verified' => true,
@@ -123,8 +123,8 @@ class AuthenticationController extends Controller
 
             $userData = [
                 'id' => $user->id,
-                'name' => $user->name,
-                'user_name' => $user->user_name,
+                'f_name' => $user->f_name,
+                'l_name' => $user->l_name,
                 'email' => $user->email,
                 'role' => $user->role,
                 'is_otp_verified' => $user->is_otp_verified,
