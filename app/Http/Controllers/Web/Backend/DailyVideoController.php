@@ -6,10 +6,11 @@ use Exception;
 use Carbon\Carbon;
 use App\Helper\Helper;
 use App\Models\DailyVideo;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class DailyVideoController extends Controller
@@ -20,15 +21,25 @@ class DailyVideoController extends Controller
     {
         try {
             $today = Carbon::today('UTC');
-            $videos = DailyVideo::whereDate('created_at', $today)->get();
-            if ($videos->isEmpty()) {
-                return $this->error([], 'Video not found.', 200);
-            }
-            $video = $videos->random();
-            $video['video'] = url($video->video);
-            return $this->success($video, 'Video found.', 200);
-        } catch (Exception $e) {
 
+            $todayVideo = DailyVideo::whereDate('created_at', $today)->first();
+
+            if ($todayVideo) {
+                $todayVideo['video'] = url($todayVideo->video);
+                return $this->success($todayVideo, 'Today\'s video found.', 200);
+            } else {
+                $randomVideo = Cache::remember('daily_random_video', 86400, function () {
+                    return DailyVideo::inRandomOrder()->first();
+                });
+
+                if ($randomVideo) {
+                    $randomVideo['video'] = url($randomVideo->video);
+                    return $this->success($randomVideo, 'Random video (cached) found.', 200);
+                } else {
+                    return $this->error([], 'No video found in database.', 200);
+                }
+            }
+        } catch (Exception $e) {
             return $this->error([], $e->getMessage(), 500);
         }
     }
