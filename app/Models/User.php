@@ -37,6 +37,9 @@ class User extends Authenticatable implements JWTSubject
         'reset_password_token_expire_at',
         'role',
         'status',
+        'product_id',
+        'package',
+        'is_subscribed',
     ];
 
 
@@ -45,6 +48,7 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
         'created_at',
         'updated_at',
+        'is_subscribed'
     ];
 
     protected function casts(): array
@@ -78,6 +82,4 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Post::class);
     }
-
-
 }

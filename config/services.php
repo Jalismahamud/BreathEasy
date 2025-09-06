@@ -22,5 +22,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+
+    'revenuecat' => [
+        'webhook_secret' => env('WEBHOOK_SECRET'),
+    ],
     
 ];

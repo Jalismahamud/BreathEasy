@@ -1,6 +1,7 @@
 <?php
 use App\Models\DynamicPage;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Backend\WebHookController;
 use App\Http\Controllers\Web\Backend\UserAccountController;
 
 
@@ -25,6 +26,8 @@ Route::get('app/login', [UserAccountController::class, 'create'])->name('app.log
 Route::post('app/login/store', [UserAccountController::class, 'store'])->name('app.login.store');
 Route::post('app/user/logout', [UserAccountController::class, 'destroy'])->name('app.user.logout');
 Route::post('app/user/delete/{user}', [UserAccountController::class, 'delete_account'])->name('app.user.delete.account');
+
+Route::get('webhook/endpoint' , [WebHookController::class, 'handleWebhook'])->name('webhook.endpoint');
 
 
 require __DIR__.'/auth.php';
