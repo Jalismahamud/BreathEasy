@@ -23,10 +23,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'authCheck'     => App\Http\Middleware\AuthCheckMiddleware::class,
-            'role'          => App\Http\Middleware\RoleMiddleware::class, 
+            'role'          => App\Http\Middleware\RoleMiddleware::class,
             'admin'         => App\Http\Middleware\AdminMiddleware::class,
         ]);
-       
+
+        $middleware->validateCsrfTokens(except: [
+            'webhook/endpoint',
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
