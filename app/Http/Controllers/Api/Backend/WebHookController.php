@@ -149,6 +149,8 @@ class WebHookController extends Controller
             case 'RENEWAL':
                 $user->product_id = $productId;
                 $user->package = $getPackage($productId);
+                $user->revenuecat_id = $event['app_user_id'];
+                $user->is_subscribed = true;
                 $user->updated_at = now();
                 break;
 
