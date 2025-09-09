@@ -26,6 +26,7 @@ return new class extends Migration
             $table->timestamp('otp_expires_at')->nullable();
             $table->string('reset_password_token')->nullable();
             $table->timestamp('reset_password_token_expire_at')->nullable();
+            $table->string('revenuecat_id')->nullable();
             $table->string('product_id')->nullable();
             $table->string('package')->nullable();
             $table->boolean('is_subscribed')->default(false);

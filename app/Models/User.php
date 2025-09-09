@@ -37,6 +37,7 @@ class User extends Authenticatable implements JWTSubject
         'reset_password_token_expire_at',
         'role',
         'status',
+        'revenuecat_id',
         'product_id',
         'package',
         'is_subscribed',
