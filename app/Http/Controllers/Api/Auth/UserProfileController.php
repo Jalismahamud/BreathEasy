@@ -36,6 +36,10 @@ class UserProfileController extends Controller
                 'avatar' => $user->avatar,
                 'role' => $user->role,
                 'status' => $user->status,
+                'is_subscribed' => $user->is_subscribed,
+                'package' => $user->package,
+                'product_id' => $user->product_id,
+                'revenuecat_id' => $user->revenuecat_id,
             ];
 
             return $this->success($userData, 'User Profile Retrieved successfully', 200);
@@ -62,7 +66,7 @@ class UserProfileController extends Controller
             $user = auth('api')->user();
             $data = $validator->validated();
 
-        
+
             if ($request->hasFile('avatar')) {
                 if ($user->avatar) {
                     Helper::deleteAvatar($user->avatar);
