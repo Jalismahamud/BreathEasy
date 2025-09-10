@@ -97,7 +97,7 @@ class WebHookController extends Controller
 
     public function handleWebhook(Request $request)
     {
-        Log::info('this is from revenue cat: ');
+        Log::info('this is from revenue cat check : Jalis is here .... ');
         Log::info($request);
 
         $authorizationHeader = $request->header('Authorization');
@@ -157,6 +157,8 @@ class WebHookController extends Controller
             case 'PRODUCT_CHANGE':
                 $user->product_id = $newProductId;
                 $user->package = $getPackage($newProductId);
+                $user->revenuecat_id = $event['app_user_id'];
+                $user->is_subscribed = true;
                 $user->updated_at = now();
                 break;
 
@@ -164,6 +166,7 @@ class WebHookController extends Controller
             case 'EXPIRATION':
                 $user->product_id = null;
                 $user->package = null;
+                $user->is_subscribed = false;
                 $user->updated_at = now();
                 break;
 
