@@ -59,8 +59,8 @@ class AuthenticationController extends Controller
             return $this->success(
                 [
                     'message' => 'OTP has been sent to your email. Please verify to complete registration.',
-                    'f_name' => $validatedData['f_name'],
-                    'l_name' => $validatedData['l_name'],
+                    'f_name' => $validatedData['f_name'] ?? null,
+                    'l_name' => $validatedData['l_name'] ?? null,
                     'email' => $email,
                 ],
                 'OTP Sent successfully.',
