@@ -467,8 +467,8 @@
                         hasError = true;
                         return;
                     }
-                    if (file.size > 50 * 1024 * 1024) {
-                        errorDiv.textContent = 'Each video must be less than 50MB.';
+                    if (file.size > 500 * 1024 * 1024) {
+                        errorDiv.textContent = 'Each video must be less than 500MB.';
                         hasError = true;
                         return;
                     }
