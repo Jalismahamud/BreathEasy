@@ -29,7 +29,7 @@ class CmsRequest extends FormRequest
             'sub_description'   => 'nullable|string',
             'bg'                => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'image'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
-            'video'             => 'nullable|file|mimes:mp4,avi,mov,mkv,flv,wmv,webm,3gp,ogg|max:51200',
+            'video'             => 'nullable|file|mimes:mp4,avi,mov,mkv,flv,wmv,webm,3gp,ogg',
             'btn_text'          => 'nullable|string|max:50',
             'btn_link'          => 'nullable|string|max:100',
             'btn_color'         => 'nullable|string|max:50',

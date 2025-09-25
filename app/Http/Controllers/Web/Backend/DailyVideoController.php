@@ -88,7 +88,7 @@ class DailyVideoController extends Controller
     public function createOrUpdate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'video' => 'required|file|mimetypes:video/mp4',
+            'video' => 'required|file',
         ]);
 
         if ($validator->fails()) {
@@ -97,7 +97,7 @@ class DailyVideoController extends Controller
 
         try {
             $today = Carbon::today('UTC');
-            // Delete any existing video for today
+          
             $existing = DailyVideo::whereDate('created_at', $today)->first();
             if ($existing) {
                 Helper::deleteImage($existing->video);
