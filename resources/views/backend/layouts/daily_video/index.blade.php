@@ -322,7 +322,7 @@
                                                         data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
                                                         <video muted
                                                             style="width: 50px; height: 30px; border-radius: 0.5rem; object-fit: cover;">
-                                                            <source src="{{ asset($video->video) }}" type="video/mp4">
+                                                            <source src="{{ asset($video->video) }}" type="video/*">
                                                         </video>
                                                         <div class="small text-muted">
                                                             {{ $video->created_at->format('H:i') }}</div>
@@ -410,7 +410,7 @@
                     '<button class="close-btn" title="Close">&times;</button>' +
                     '<video controls poster="{{ asset('default/video.png') }}" style="width: 480px; max-width: 95vw; border-radius: 0.5rem;">' +
                     '<source src="' + videoUrl +
-                    '" type="video/mp4">Your browser does not support the video tag.</video>' +
+                    '" type="video/*">Your browser does not support the video tag.</video>' +
                     '<div class="small text-muted mt-1">Uploaded: ' + uploaded + '</div>' +
                     '<div class="close-hint">Double click video for fullscreen. Click outside to close.</div>' +
                     '</div>');
@@ -462,8 +462,8 @@
                 errorDiv.textContent = '';
                 let hasError = false;
                 Array.from(this.files).forEach(file => {
-                    if (file.type !== 'video/mp4') {
-                        errorDiv.textContent = 'Only MP4 video files are allowed.';
+                    if (!file.type.startsWith('video/')) {
+                        errorDiv.textContent = 'Only video files are allowed.';
                         hasError = true;
                         return;
                     }
