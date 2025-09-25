@@ -252,7 +252,7 @@
                             style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;"></div>
                         <input type="file" name="video" id="video"
                             class="form-control @error('video') is-invalid @enderror"
-                            data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm" accept="video/*"
+                            data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm mpeg mpg 3gp 3g2 ogv mts m2ts ts f4v vob" accept="video/*"
                             style="padding: 0.5rem; border-radius: 0.5rem; border: 1.5px solid #3b82f6; background: #f8fafc;" />
                         <div id="video-error" class="text-danger mt-1"></div>
                         @error('video')

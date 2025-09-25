@@ -57,7 +57,7 @@ class ContentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
-            'video' => 'required|file|mimes:mp4,mov,avi,wmv',
+            'video' => 'required|file',
             'video_length' => 'nullable|string'
         ]);
 
@@ -111,7 +111,7 @@ class ContentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
-            'video' => 'nullable|file|mimes:mp4,mov,avi,wmv',
+            'video' => 'nullable|file',
             'video_length' => 'nullable|string'
         ]);
 

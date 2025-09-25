@@ -97,7 +97,7 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Upload Image:</label>
-                                            <input type="file" name="image" class="dropify form-control @error('image') is-invalid @enderror" data-allowed-file-extensions="jpg jpeg png gif" data-max-file-size="50M" style="height: 150px;"
+                                            <input type="file" name="image" class="dropify form-control @error('image') is-invalid @enderror" data-allowed-file-extensions="jpg jpeg png gif" data-max-file-size="500M" style="height: 150px;"
                                             @if($data->image)
                                                 data-default-file="{{ asset($data->image) }}"
                                             @endif
@@ -108,7 +108,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Upload Video:</label>
-                                            <input type="file" name="video" class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4 mov avi wmv" data-max-file-size="50M" style="height: 120px;"
+                                            <input type="file" name="video" class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm mpeg mpg 3gp 3g2 ogv mts m2ts ts f4v vob" data-max-file-size="500M" style="height: 120px;"
                                             @if($data->video)
                                                 data-default-file="{{ asset($data->video) }}"
                                             @endif

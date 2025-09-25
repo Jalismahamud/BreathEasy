@@ -97,7 +97,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Upload Video:</label>
-                                        <input type="file" name="video" class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4 mov avi wmv" data-max-file-size="50M" style="height: 120px;" />
+                                        <input type="file" name="video" class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm mpeg mpg 3gp 3g2 ogv mts m2ts ts f4v vob" data-max-file-size="500M" style="height: 120px;" />
                                         @error('video')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
