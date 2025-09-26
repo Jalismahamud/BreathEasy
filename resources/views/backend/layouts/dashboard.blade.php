@@ -126,6 +126,30 @@
                     </div>
 
 
+                    <div class="">
+                        <form method="GET" class="mb-4">
+                            <label for="month">Select Month:</label>
+                            <input type="month" id="month" name="month" value="{{ $selectedMonth }}"
+                                onchange="this.form.submit()" class="form-control" style="max-width: 300px;">
+                        </form>
+
+                        <!-- Chart -->
+                        <div class="card shadow mb-5">
+                            <div class="card-header d-flex align-items-center gap-3">
+                                <div>
+                                    User Join Statistics -- {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}
+                                </div>
+                                <div>
+                                    <span class="fw-semibold">Total Users = {{ $monthlyJoinedUsers }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="dashboardChart" height="80"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
                 <!-- ROW-1 END-->
 
@@ -134,4 +158,105 @@
         </div>
     </div>
     <!-- CONTAINER CLOSED -->
+
+    <!-- Chart JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @json($dates);
+        const userData = @json($userChartData);
+
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'User Data',
+                    data: userData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(201, 203, 207, 0.2)',
+                        'rgba(255, 99, 71, 0.2)',
+                        'rgba(0, 128, 128, 0.2)',
+                        'rgba(220, 20, 60, 0.2)',
+                        'rgba(0, 191, 255, 0.2)',
+                        'rgba(255, 140, 0, 0.2)',
+                        'rgba(46, 139, 87, 0.2)',
+                        'rgba(138, 43, 226, 0.2)',
+                        'rgba(205, 92, 92, 0.2)',
+                        'rgba(70, 130, 180, 0.2)',
+                        'rgba(218, 165, 32, 0.2)',
+                        'rgba(199, 21, 133, 0.2)',
+                        'rgba(34, 139, 34, 0.2)',
+                        'rgba(244, 164, 96, 0.2)',
+                        'rgba(72, 61, 139, 0.2)',
+                        'rgba(127, 255, 0, 0.2)',
+                        'rgba(106, 90, 205, 0.2)',
+                        'rgba(240, 128, 128, 0.2)',
+                        'rgba(0, 206, 209, 0.2)',
+                        'rgba(160, 82, 45, 0.2)',
+                        'rgba(100, 149, 237, 0.2)',
+                        'rgba(210, 105, 30, 0.2)',
+                        'rgba(95, 158, 160, 0.2)',
+                        'rgba(128, 0, 128, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(201, 203, 207, 1)',
+                        'rgba(255, 99, 71, 1)',
+                        'rgba(0, 128, 128, 1)',
+                        'rgba(220, 20, 60, 1)',
+                        'rgba(0, 191, 255, 1)',
+                        'rgba(255, 140, 0, 1)',
+                        'rgba(46, 139, 87, 1)',
+                        'rgba(138, 43, 226, 1)',
+                        'rgba(205, 92, 92, 1)',
+                        'rgba(70, 130, 180, 1)',
+                        'rgba(218, 165, 32, 1)',
+                        'rgba(199, 21, 133, 1)',
+                        'rgba(34, 139, 34, 1)',
+                        'rgba(244, 164, 96, 1)',
+                        'rgba(72, 61, 139, 1)',
+                        'rgba(127, 255, 0, 1)',
+                        'rgba(106, 90, 205, 1)',
+                        'rgba(240, 128, 128, 1)',
+                        'rgba(0, 206, 209, 1)',
+                        'rgba(160, 82, 45, 1)',
+                        'rgba(100, 149, 237, 1)',
+                        'rgba(210, 105, 30, 1)',
+                        'rgba(95, 158, 160, 1)',
+                        'rgba(128, 0, 128, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 @endsection

@@ -243,24 +243,19 @@
                 @elseif (session('t-error'))
                     <div class="alert alert-danger auto-dismiss">{{ session('t-error') }}</div>
                 @endif
-                <form method="POST" action="{{ route('admin.daily-video.createOrUpdate') }}" enctype="multipart/form-data"
-                    class="mb-4">
+                <form id="chunk-upload-form" enctype="multipart/form-data" class="mb-4">
                     @csrf
                     <div class="mb-3">
                         <label for="video" class="form-label">Video:</label>
-                        <div id="video-preview-container"
-                            style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;"></div>
-                        <input type="file" name="video" id="video"
-                            class="form-control @error('video') is-invalid @enderror"
-                            data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm mpeg mpg 3gp 3g2 ogv mts m2ts ts f4v vob" accept="video/*"
-                            style="padding: 0.5rem; border-radius: 0.5rem; border: 1.5px solid #3b82f6; background: #f8fafc;" />
-                        <div id="video-error" class="text-danger mt-1"></div>
-                        @error('video')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                        <input type="file" name="video" id="video" class="form-control" accept="video/*" />
+                        <div id="upload-progress" style="margin-top: 10px; display:none;">
+                            <div id="progress-bar" style="width:0%; height:20px; background:#22c55e; border-radius:5px;">
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-2">Save Video</button>
+                    <button type="button" id="upload-btn" class="btn btn-primary mt-2">Upload Video</button>
                 </form>
+
                 <hr>
                 <div class="d-flex align-items-center mb-3">
                     <label for="month-filter" class="me-2 mb-0">Month:</label>
@@ -315,18 +310,23 @@
                                             data-date="{{ $date->toDateString() }}">
                                             <div>{{ $date->format('j') }}</div>
                                             @if (isset($calendar[$date->toDateString()]))
-                                                @php $video = $calendar[$date->toDateString()][0]; @endphp
                                                 <div class="calendar-hover-card-list">
-                                                    <div class="calendar-hover-card-video-thumb"
-                                                        data-video-url="{{ asset($video->video) }}"
-                                                        data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
-                                                        <video muted
-                                                            style="width: 50px; height: 30px; border-radius: 0.5rem; object-fit: cover;">
-                                                            <source src="{{ asset($video->video) }}" type="video/*">
-                                                        </video>
-                                                        <div class="small text-muted">
-                                                            {{ $video->created_at->format('H:i') }}</div>
-                                                    </div>
+                                                    {{-- Loop through ALL videos for this date --}}
+                                                    @foreach($calendar[$date->toDateString()] as $video)
+                                                        <div class="calendar-hover-card-video-thumb"
+                                                            data-video-url="{{ asset($video->video) }}"
+                                                            data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
+                                                            <video muted preload="metadata"
+                                                                onloadedmetadata="this.nextElementSibling.textContent = Math.floor(this.duration/60) + ':' + ('0' + Math.floor(this.duration%60)).slice(-2)"
+                                                                style="width: 50px; height: 30px; border-radius: 0.5rem; object-fit: cover;">
+                                                                <source src="{{ asset($video->video) }}" type="video/mp4">
+                                                                <source src="{{ asset($video->video) }}" type="video/*">
+                                                            </video>
+                                                            <div class="small text-muted" data-duration="loading...">
+                                                                {{ $video->created_at->format('H:i') }}
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
                                             @endif
                                         </td>
@@ -379,9 +379,39 @@
                 window.location.href = '?month=' + month + '&year=' + year;
             });
 
-            // Show/hide video list on hover
+            // Enhanced hover functionality with better video handling
             $(document).on('mouseenter', '.calendar-table td.has-video', function() {
                 const $list = $(this).find('.calendar-hover-card-list');
+
+                // Load video thumbnails when hovering and handle duration display
+                $list.find('video').each(function() {
+                    const video = this;
+                    const $durationDiv = $(this).next('.small.text-muted');
+
+                    if (!this.hasAttribute('data-loaded')) {
+                        // Force video to load
+                        this.preload = 'metadata';
+                        this.load();
+                        this.setAttribute('data-loaded', 'true');
+
+                        // Handle metadata loaded event
+                        $(this).on('loadedmetadata', function() {
+                            if (video.duration && !isNaN(video.duration) && video.duration > 0) {
+                                const minutes = Math.floor(video.duration / 60);
+                                const seconds = Math.floor(video.duration % 60);
+                                const durationText = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                                $durationDiv.text(durationText);
+                            }
+                        });
+
+                        // Handle errors
+                        $(this).on('error', function() {
+                            console.error('Video failed to load metadata');
+                            $durationDiv.text('Error');
+                        });
+                    }
+                });
+
                 $list.css('width', 'auto');
                 let totalWidth = 0;
                 $list.find('.calendar-hover-card-video-thumb').each(function() {
@@ -390,6 +420,7 @@
                 $list.css('min-width', Math.max(240, totalWidth + 32) + 'px');
                 $list.stop(true, true).fadeIn(120);
             });
+
             $(document).on('mouseleave', '.calendar-table td.has-video', function() {
                 $(this).find('.calendar-hover-card-list').stop(true, true).fadeOut(80);
             });
@@ -397,43 +428,73 @@
             // Card popup logic for multiple videos per day
             let cardOpen = false;
             let cardEl = null;
+
+            // Enhanced video thumbnail click with error handling
             $(document).on('click', '.calendar-hover-card-video-thumb', function(e) {
                 e.stopPropagation();
                 const videoUrl = $(this).data('video-url');
                 const uploaded = $(this).data('uploaded');
-                if (!videoUrl) return;
+
+                if (!videoUrl) {
+                    console.warn('No video URL found');
+                    return;
+                }
+
                 if (cardOpen && cardEl) {
                     cardEl.remove();
                     cardOpen = false;
                 }
+
                 cardEl = $('<div class="calendar-hover-card" style="display:block;">' +
                     '<button class="close-btn" title="Close">&times;</button>' +
-                    '<video controls poster="{{ asset('default/video.png') }}" style="width: 480px; max-width: 95vw; border-radius: 0.5rem;">' +
-                    '<source src="' + videoUrl +
-                    '" type="video/*">Your browser does not support the video tag.</video>' +
+                    '<video controls preload="auto" autoplay muted poster="{{ asset('default/video.png') }}" style="width: 480px; max-width: 95vw; border-radius: 0.5rem;">' +
+                    '<source src="' + videoUrl + '" type="video/mp4">' +
+                    '<source src="' + videoUrl + '" type="video/*">' +
+                    'Your browser does not support the video tag.' +
+                    '</video>' +
                     '<div class="small text-muted mt-1">Uploaded: ' + uploaded + '</div>' +
                     '<div class="close-hint">Double click video for fullscreen. Click outside to close.</div>' +
                     '</div>');
+
                 $('body').append(cardEl);
                 cardOpen = true;
+
+                // Force video to load and play
+                const mainVideo = cardEl.find('video')[0];
+                mainVideo.load();
+
+                // Better video loading handling
+                $(mainVideo).on('canplay', function() {
+                    // Video is ready to play
+                    console.log('Video ready to play');
+                }).on('loadedmetadata', function() {
+                    // Video metadata loaded
+                    console.log('Video metadata loaded, duration:', this.duration);
+                }).on('error', function(e) {
+                    console.error('Main video failed to load:', videoUrl, e);
+                    $(this).after('<div class="text-danger mt-2">Video failed to load. Please check the file.</div>');
+                });
+
                 setTimeout(function() {
-                    cardEl.find('video')[0].focus();
+                    mainVideo.focus();
                 }, 100);
+
                 setTimeout(function() {
                     $(document).on('mousedown.card', function(ev) {
-                        if (cardEl && !$(ev.target).closest('.calendar-hover-card')
-                            .length) {
+                        if (cardEl && !$(ev.target).closest('.calendar-hover-card').length) {
                             cardEl.remove();
                             cardOpen = false;
                             $(document).off('mousedown.card');
                         }
                     });
                 }, 10);
+
                 cardEl.find('.close-btn').on('click', function() {
                     cardEl.remove();
                     cardOpen = false;
                     $(document).off('mousedown.card');
                 });
+
                 cardEl.find('video').on('dblclick', function(e) {
                     e.stopPropagation();
                     if (this.requestFullscreen) this.requestFullscreen();
@@ -441,12 +502,14 @@
                     else if (this.msRequestFullscreen) this.msRequestFullscreen();
                 });
             });
+
             $(document).on('dblclick', function(e) {
                 if (cardEl && !$(e.target).closest('.calendar-hover-card').length) {
                     cardEl.remove();
                     cardOpen = false;
                 }
             });
+
             $('#goto-current').on('click', function() {
                 const today = new Date();
                 const month = today.getMonth() + 1;
@@ -457,50 +520,147 @@
             const videoInput = document.getElementById('video');
             const previewContainer = document.getElementById('video-preview-container');
             const errorDiv = document.getElementById('video-error');
-            videoInput.addEventListener('change', function(e) {
-                previewContainer.innerHTML = '';
-                errorDiv.textContent = '';
-                let hasError = false;
-                Array.from(this.files).forEach(file => {
-                    if (!file.type.startsWith('video/')) {
-                        errorDiv.textContent = 'Only video files are allowed.';
-                        hasError = true;
-                        return;
-                    }
-                    if (file.size > 500 * 1024 * 1024) {
-                        errorDiv.textContent = 'Each video must be less than 500MB.';
-                        hasError = true;
-                        return;
-                    }
-                    const videoBox = document.createElement('div');
-                    videoBox.style.width = '120px';
-                    videoBox.style.textAlign = 'center';
-                    videoBox.style.position = 'relative';
-                    videoBox.style.background = '#f0f4f8';
-                    videoBox.style.borderRadius = '0.5rem';
-                    videoBox.style.padding = '0.5rem';
-                    videoBox.style.boxShadow = '0 2px 8px rgba(44,62,80,0.07)';
-                    const video = document.createElement('video');
-                    video.src = URL.createObjectURL(file);
-                    video.controls = true;
-                    video.muted = true;
-                    video.style.width = '100%';
-                    video.style.height = '80px';
-                    video.style.objectFit = 'cover';
-                    video.style.borderRadius = '0.5rem';
-                    videoBox.appendChild(video);
-                    const name = document.createElement('div');
-                    name.textContent = file.name;
-                    name.style.fontSize = '0.85rem';
-                    name.style.marginTop = '0.25rem';
-                    videoBox.appendChild(name);
-                    previewContainer.appendChild(videoBox);
-                });
-                if (hasError) {
-                    this.value = '';
+
+            if (videoInput && previewContainer && errorDiv) {
+                videoInput.addEventListener('change', function(e) {
                     previewContainer.innerHTML = '';
+                    errorDiv.textContent = '';
+                    let hasError = false;
+                    Array.from(this.files).forEach(file => {
+                        if (!file.type.startsWith('video/')) {
+                            errorDiv.textContent = 'Only video files are allowed.';
+                            hasError = true;
+                            return;
+                        }
+                        if (file.size > 500 * 1024 * 1024) {
+                            errorDiv.textContent = 'Each video must be less than 500MB.';
+                            hasError = true;
+                            return;
+                        }
+                        const videoBox = document.createElement('div');
+                        videoBox.style.width = '120px';
+                        videoBox.style.textAlign = 'center';
+                        videoBox.style.position = 'relative';
+                        videoBox.style.background = '#f0f4f8';
+                        videoBox.style.borderRadius = '0.5rem';
+                        videoBox.style.padding = '0.5rem';
+                        videoBox.style.boxShadow = '0 2px 8px rgba(44,62,80,0.07)';
+                        const video = document.createElement('video');
+                        video.src = URL.createObjectURL(file);
+                        video.controls = true;
+                        video.muted = true;
+                        video.style.width = '100%';
+                        video.style.height = '80px';
+                        video.style.objectFit = 'cover';
+                        video.style.borderRadius = '0.5rem';
+                        videoBox.appendChild(video);
+                        const name = document.createElement('div');
+                        name.textContent = file.name;
+                        name.style.fontSize = '0.85rem';
+                        name.style.marginTop = '0.25rem';
+                        videoBox.appendChild(name);
+                        previewContainer.appendChild(videoBox);
+                    });
+                    if (hasError) {
+                        this.value = '';
+                        previewContainer.innerHTML = '';
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            const chunkSize = 2 * 1024 * 1024; // 2MB per chunk
+            const uploadUrl = "{{ route('admin.daily-video.chunkUpload') }}";
+
+            // Toast function
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast-message toast-${type}`;
+                toast.style.position = 'fixed';
+                toast.style.top = '30px';
+                toast.style.right = '30px';
+                toast.style.zIndex = '99999';
+                toast.style.background = type === 'success' ? '#22c55e' : '#ef4444';
+                toast.style.color = '#fff';
+                toast.style.padding = '12px 24px';
+                toast.style.borderRadius = '8px';
+                toast.style.boxShadow = '0 2px 8px rgba(44,62,80,0.12)';
+                toast.style.fontWeight = '600';
+                toast.innerText = message;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.remove();
+                }, 3500);
+            }
+
+            $("#upload-btn").on("click", function() {
+                const fileInput = document.getElementById("video");
+                const file = fileInput.files[0];
+                if (!file) {
+                    showToast("Please select a video", 'error');
+                    return;
                 }
+
+                // Generate unique filename like images
+                const timestamp = Date.now();
+                const random = Math.floor(Math.random() * 1000000000);
+                const ext = file.name.split('.').pop();
+                const fileName = `${timestamp}-${random}.${ext}`;
+
+                const totalChunks = Math.ceil(file.size / chunkSize);
+                let currentChunk = 0;
+
+                $("#upload-progress").show();
+
+                function uploadNextChunk() {
+                    const start = currentChunk * chunkSize;
+                    const end = Math.min(file.size, start + chunkSize);
+                    const blob = file.slice(start, end);
+
+                    const formData = new FormData();
+                    formData.append("_token", "{{ csrf_token() }}");
+                    formData.append("file", blob);
+                    formData.append("fileName", fileName);
+                    formData.append("chunkIndex", currentChunk);
+                    formData.append("totalChunks", totalChunks);
+
+                    $.ajax({
+                        url: uploadUrl,
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(resp) {
+                            currentChunk++;
+                            let progress = Math.floor((currentChunk / totalChunks) * 100);
+                            $("#progress-bar").css("width", progress + "%");
+
+                            if (currentChunk < totalChunks) {
+                                uploadNextChunk();
+                            } else {
+                                showToast("Video uploaded successfully!", 'success');
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1200);
+                            }
+                        },
+                        error: function(err) {
+                            console.error(err);
+                            showToast("Upload failed!", 'error');
+                        }
+                    });
+                }
+
+                uploadNextChunk();
             });
+
+            // Add toast styles
+            const style = document.createElement('style');
+            style.innerHTML = `.toast-message { transition: opacity 0.3s; opacity: 0.95; font-size: 1rem; }`;
+            document.head.appendChild(style);
         });
     </script>
 @endpush

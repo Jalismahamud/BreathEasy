@@ -49,6 +49,7 @@ Route::prefix('category')->name('admin.category.')->group(function () {
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('daily-videos', [DailyVideoController::class, 'index'])->name('admin.daily-video.index');
     Route::post('daily-videos', [DailyVideoController::class, 'createOrUpdate'])->name('admin.daily-video.createOrUpdate');
+    Route::post('daily-video/chunk-upload', [DailyVideoController::class, 'chunkUpload'])->name('admin.daily-video.chunkUpload');
 });
 
 
