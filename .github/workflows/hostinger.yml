@@ -14,6 +14,9 @@ jobs:
       - name: FTP-Deploy-Action
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: ftp.breatheasy222.site
-          username: u185768090.breatheasy
-          password: "cL0oU8WiqIfC8#Td"
+          # server: ftp.breatheasy222.site
+          # username: u185768090.breatheasy
+          # password: "cL0oU8WiqIfC8#Td"
+          server: breatheasy222.site
+          username: breatheasy222_backend
+          password: "F@3csVnNtbNWdtFKYd%U"
