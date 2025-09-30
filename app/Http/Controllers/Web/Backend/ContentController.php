@@ -57,7 +57,8 @@ class ContentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
-            'video' => 'required|file|max:409600',
+            'video' => 'required_without:video_path|file',
+            'video_path' => 'required_without:video|string',
             'video_length' => 'nullable|string'
         ]);
 
@@ -71,9 +72,9 @@ class ContentController extends Controller
                 $validated['image'] = null;
             }
 
-
-
-            if ($request->hasFile('video')) {
+            if ($request->input('video_path')) {
+                $validated['video'] = $request->input('video_path');
+            } elseif ($request->hasFile('video')) {
                 $video = $request->file('video');
                 $videoPath = Helper::uploadImage($video, 'contents');
                 $validated['video'] = $videoPath;
@@ -111,7 +112,8 @@ class ContentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
-            'video' => 'nullable|file|max:409600',
+            'video' => 'nullable|file',
+            'video_path' => 'nullable|string',
             'video_length' => 'nullable|string'
         ]);
 
@@ -129,19 +131,41 @@ class ContentController extends Controller
                 $validated['image'] = $content->image;
             }
 
-
-            if ($request->hasFile('video')) {
+            if ($request->input('video_path')) {
+                if ($content->video) {
+                    // try deleting using Helper first
+                    $deleted = Helper::deleteAvatar($content->video);
+                    if (! $deleted) {
+                        // try normalizing path and unlink directly
+                        $rel = ltrim($content->video, '/');
+                        $publicPath = public_path($rel);
+                        if (file_exists($publicPath)) {
+                            @unlink($publicPath);
+                            \Illuminate\Support\Facades\Log::info('Content update: deleted old video by public_path', ['path'=>$publicPath]);
+                        } else {
+                            $storagePath = storage_path('app/public/' . $rel);
+                            if (file_exists($storagePath)) {
+                                @unlink($storagePath);
+                                \Illuminate\Support\Facades\Log::info('Content update: deleted old video by storage_path', ['path'=>$storagePath]);
+                            } else {
+                                \Illuminate\Support\Facades\Log::warning('Content update: failed to delete old video', ['video'=>$content->video]);
+                            }
+                        }
+                    }
+                }
+                $validated['video'] = $request->input('video_path');
+                $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+            } elseif ($request->hasFile('video')) {
 
                 if ($content->video) {
                     Helper::deleteAvatar($content->video);
                 }
-
                 $video = $request->file('video');
                 $videoPath = Helper::uploadImage($video, 'contents');
                 $validated['video'] = $videoPath;
-
-
                 $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+            } else {
+                $validated['video'] = $content->video;
             }
 
 
@@ -181,5 +205,57 @@ class ContentController extends Controller
             'success' => true,
             'message' => 'Content deleted successfully!',
         ], 200);
+    }
+
+
+    public function chunkUpload(Request $request)
+    {
+    $fileName    = $request->fileName;
+    $chunkIndex  = is_numeric($request->chunkIndex) ? intval($request->chunkIndex) : 0;
+    $totalChunks = is_numeric($request->totalChunks) ? intval($request->totalChunks) : 1;
+
+        $tempDir  = public_path('uploads/contents/tmp');
+        $tempPath = $tempDir . '/' . $fileName;
+
+        try {
+            if (!\Illuminate\Support\Facades\File::exists($tempDir)) {
+                \Illuminate\Support\Facades\File::makeDirectory($tempDir, 0777, true);
+            }
+
+            // move current chunk
+            if ($request->hasFile('file')) {
+                $request->file('file')->move($tempDir, $fileName . ".part" . $chunkIndex);
+            } else {
+                \Illuminate\Support\Facades\Log::warning('Content chunk upload received without file', ['fileName'=>$fileName, 'chunk'=>$chunkIndex]);
+                return response()->json(['status' => 'error', 'message' => 'No chunk file received'], 400);
+            }
+
+            if ($chunkIndex + 1 == $totalChunks) {
+                $finalDir = public_path('uploads/contents');
+                if (!\Illuminate\Support\Facades\File::exists($finalDir)) {
+                    \Illuminate\Support\Facades\File::makeDirectory($finalDir, 0777, true);
+                }
+
+                $finalPath = $finalDir . '/' . $fileName;
+
+                $out = fopen($finalPath, "ab");
+                for ($i = 0; $i < $totalChunks; $i++) {
+                    $chunkFile = $tempDir . '/' . $fileName . ".part" . $i;
+                    $in = fopen($chunkFile, "rb");
+                    stream_copy_to_stream($in, $out);
+                    fclose($in);
+                    unlink($chunkFile);
+                }
+                fclose($out);
+
+                \Illuminate\Support\Facades\Log::info('Content chunk upload assembled', ['file' => $finalPath]);
+                return response()->json(['status' => 'ok', 'path' => 'uploads/contents/' . $fileName], 200);
+            }
+
+            return response()->json(['status' => 'ok']);
+        } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Content Chunk Upload Error: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Upload failed.'], 500);
+        }
     }
 }

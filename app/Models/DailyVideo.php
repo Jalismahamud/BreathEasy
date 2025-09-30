@@ -6,8 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class DailyVideo extends Model
 {
-    protected $fillable = ['video'];
+    // Allow created_at to be set when assigning videos to specific dates
+    protected $fillable = ['video', 'created_at'];
 
-    protected $hidden = ['created_at', 'updated_at'];
-    
+    // Keep timestamps visible so views/controllers can read created_at
+    protected $hidden = [];
+
 }

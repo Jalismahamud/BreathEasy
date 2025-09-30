@@ -46,11 +46,35 @@ class Helper
             return false;
         }
 
-        $relativePath = str_replace(asset('/'), '', $filePath);
-        $fullPath     = public_path($relativePath);
+        $relativePath = $filePath;
 
+        if (Str::startsWith($filePath, ['http://', 'https://'])) {
+            $parsed = parse_url($filePath, PHP_URL_PATH);
+            $relativePath = ltrim($parsed, '/');
+        } else {
+
+            try {
+                $assetBase = asset('/');
+                if (strpos($filePath, $assetBase) === 0) {
+                    $relativePath = substr($filePath, strlen($assetBase));
+                }
+            } catch (\Throwable $e) {
+
+            }
+        }
+
+        $relativePath = ltrim($relativePath, '/');
+
+
+        $fullPath = public_path($relativePath);
         if (file_exists($fullPath)) {
             unlink($fullPath);
+            return true;
+        }
+
+        $storagePath = storage_path('app/public/' . $relativePath);
+        if (file_exists($storagePath)) {
+            unlink($storagePath);
             return true;
         }
 
@@ -61,7 +85,27 @@ class Helper
 
     public static function getVideoDurationFormatted($relativePath)
     {
-        $absolutePath = storage_path('app/public/' . $relativePath);
+        if (! $relativePath) {
+            return null;
+        }
+
+        $path = $relativePath;
+
+        // If given a full URL, extract the path
+        if (Str::startsWith($relativePath, ['http://', 'https://'])) {
+            $parsed = parse_url($relativePath, PHP_URL_PATH);
+            $path = ltrim($parsed, '/');
+        }
+
+        // Check public_path first
+        $absolutePath = public_path($path);
+        if (! file_exists($absolutePath)) {
+            // Fallback to storage/app/public
+            $absolutePath = storage_path('app/public/' . ltrim($path, '/'));
+            if (! file_exists($absolutePath)) {
+                return null;
+            }
+        }
 
         $getID3 = new getID3();
         $info = $getID3->analyze($absolutePath);

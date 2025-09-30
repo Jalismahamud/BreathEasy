@@ -167,24 +167,29 @@
         }
 
         .calendar-hover-card-list {
-            display: flex;
+            /* keep in-cell list for accessibility, but hide visually by default; we'll clone/float it on hover */
+            display: none;
+            visibility: hidden;
+        }
+
+        /* Floating clone appended to body so it won't be clipped by table/container overflow */
+        .floating-calendar-hover-card-list {
+            display: flex !important;
             justify-content: center;
             align-items: center;
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translate(-50%, 10px);
-            z-index: 10;
+            position: absolute !important;
+            z-index: 20000 !important;
             background: #fff;
             border-radius: 1rem;
-            box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
-            padding: 1rem 1.5rem;
+            box-shadow: 0 12px 48px rgba(44, 62, 80, 0.28);
+            padding: 0.5rem 0.75rem;
             min-width: 120px;
             text-align: center;
             white-space: nowrap;
             max-width: 95vw;
             overflow-x: auto;
-            gap: 0;
+            gap: 0.25rem;
+            transform-origin: top center;
         }
 
         .calendar-hover-card-video-thumb {
@@ -253,6 +258,13 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label for="upload-date" class="form-label">Upload Date:</label>
+                        <input type="date" id="upload-date" name="upload_date" class="form-control"
+                            value="{{ \Carbon\Carbon::today('UTC')->toDateString() }}" />
+                        <div class="form-text">Choose the date this video should be assigned to (you can select future
+                            dates).</div>
+                    </div>
                     <button type="button" id="upload-btn" class="btn btn-primary mt-2">Upload Video</button>
                 </form>
 
@@ -311,8 +323,8 @@
                                             <div>{{ $date->format('j') }}</div>
                                             @if (isset($calendar[$date->toDateString()]))
                                                 <div class="calendar-hover-card-list">
-                                                    {{-- Loop through ALL videos for this date --}}
-                                                    @foreach($calendar[$date->toDateString()] as $video)
+
+                                                    @foreach ($calendar[$date->toDateString()] as $video)
                                                         <div class="calendar-hover-card-video-thumb"
                                                             data-video-url="{{ asset($video->video) }}"
                                                             data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
@@ -351,7 +363,7 @@
                 $('.auto-dismiss').fadeOut('slow');
             }, 5000);
 
-            // Month and year filter
+
             $('#month-filter, #year-filter').on('change', function() {
                 var selectedMonth = $('#month-filter').val();
                 var selectedYear = $('#year-filter').val();
@@ -379,32 +391,37 @@
                 window.location.href = '?month=' + month + '&year=' + year;
             });
 
-            // Enhanced hover functionality with better video handling
-            $(document).on('mouseenter', '.calendar-table td.has-video', function() {
-                const $list = $(this).find('.calendar-hover-card-list');
 
-                // Load video thumbnails when hovering and handle duration display
+            let floatingList = null;
+            let hoverTimeout = null;
+
+            $(document).on('mouseenter', '.calendar-table td.has-video', function(e) {
+                const $cell = $(this);
+                const $list = $cell.find('.calendar-hover-card-list');
+
+                if (!$list.length) return;
+
+
                 $list.find('video').each(function() {
                     const video = this;
                     const $durationDiv = $(this).next('.small.text-muted');
 
                     if (!this.hasAttribute('data-loaded')) {
-                        // Force video to load
                         this.preload = 'metadata';
                         this.load();
                         this.setAttribute('data-loaded', 'true');
 
-                        // Handle metadata loaded event
                         $(this).on('loadedmetadata', function() {
-                            if (video.duration && !isNaN(video.duration) && video.duration > 0) {
+                            if (video.duration && !isNaN(video.duration) && video.duration >
+                                0) {
                                 const minutes = Math.floor(video.duration / 60);
                                 const seconds = Math.floor(video.duration % 60);
-                                const durationText = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                                const durationText = minutes + ':' + (seconds < 10 ? '0' :
+                                    '') + seconds;
                                 $durationDiv.text(durationText);
                             }
                         });
 
-                        // Handle errors
                         $(this).on('error', function() {
                             console.error('Video failed to load metadata');
                             $durationDiv.text('Error');
@@ -412,24 +429,82 @@
                     }
                 });
 
-                $list.css('width', 'auto');
-                let totalWidth = 0;
-                $list.find('.calendar-hover-card-video-thumb').each(function() {
-                    totalWidth += $(this).outerWidth(true);
+                if (floatingList) {
+                    floatingList.remove();
+                    floatingList = null;
+                }
+
+                floatingList = $list.clone(true, true).removeClass('calendar-hover-card-list').addClass(
+                    'floating-calendar-hover-card-list');
+                $('body').append(floatingList);
+
+                const cellRect = $cell[0].getBoundingClientRect();
+                const listWidth = Math.min(Math.max(240, floatingList.outerWidth(true)), $(window).width() -
+                    40);
+                floatingList.css('width', listWidth + 'px');
+
+                const spaceBelow = $(window).height() - cellRect.bottom;
+                const spaceAbove = cellRect.top;
+                let top, left;
+                left = cellRect.left + (cellRect.width / 2) - (listWidth / 2);
+                left = Math.max(12, Math.min(left, $(window).width() - listWidth - 12));
+
+                if (spaceBelow > 120 || spaceBelow > spaceAbove) {
+
+                    top = cellRect.bottom + 10 + window.scrollY;
+                } else {
+
+                    top = cellRect.top - floatingList.outerHeight(true) - 10 + window.scrollY;
+                }
+
+                floatingList.css({
+                    top: top + 'px',
+                    left: left + 'px'
                 });
-                $list.css('min-width', Math.max(240, totalWidth + 32) + 'px');
-                $list.stop(true, true).fadeIn(120);
+                floatingList.stop(true, true).fadeIn(120);
+
+
+                clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(function() {
+
+                }, 0);
+
+
             });
+
 
             $(document).on('mouseleave', '.calendar-table td.has-video', function() {
-                $(this).find('.calendar-hover-card-list').stop(true, true).fadeOut(80);
+
+                if (hoverTimeout) clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(function() {
+                    if (floatingList) {
+                        floatingList.stop(true, true).fadeOut(80, function() {
+                            $(this).remove();
+                        });
+                        floatingList = null;
+                    }
+                }, 120);
             });
 
-            // Card popup logic for multiple videos per day
+
+            $(document).on('mouseenter', '.floating-calendar-hover-card-list', function() {
+                if (hoverTimeout) clearTimeout(hoverTimeout);
+            });
+            $(document).on('mouseleave', '.floating-calendar-hover-card-list', function() {
+                var $fl = $(this);
+                hoverTimeout = setTimeout(function() {
+                    $fl.stop(true, true).fadeOut(80, function() {
+                        $(this).remove();
+                    });
+                    floatingList = null;
+                }, 120);
+            });
+
+
             let cardOpen = false;
             let cardEl = null;
 
-            // Enhanced video thumbnail click with error handling
+
             $(document).on('click', '.calendar-hover-card-video-thumb', function(e) {
                 e.stopPropagation();
                 const videoUrl = $(this).data('video-url');
@@ -459,20 +534,22 @@
                 $('body').append(cardEl);
                 cardOpen = true;
 
-                // Force video to load and play
+
                 const mainVideo = cardEl.find('video')[0];
                 mainVideo.load();
 
-                // Better video loading handling
+
                 $(mainVideo).on('canplay', function() {
-                    // Video is ready to play
+
                     console.log('Video ready to play');
                 }).on('loadedmetadata', function() {
-                    // Video metadata loaded
+
                     console.log('Video metadata loaded, duration:', this.duration);
                 }).on('error', function(e) {
                     console.error('Main video failed to load:', videoUrl, e);
-                    $(this).after('<div class="text-danger mt-2">Video failed to load. Please check the file.</div>');
+                    $(this).after(
+                        '<div class="text-danger mt-2">Video failed to load. Please check the file.</div>'
+                        );
                 });
 
                 setTimeout(function() {
@@ -481,7 +558,8 @@
 
                 setTimeout(function() {
                     $(document).on('mousedown.card', function(ev) {
-                        if (cardEl && !$(ev.target).closest('.calendar-hover-card').length) {
+                        if (cardEl && !$(ev.target).closest('.calendar-hover-card')
+                            .length) {
                             cardEl.remove();
                             cardOpen = false;
                             $(document).off('mousedown.card');
@@ -572,10 +650,10 @@
 
     <script>
         $(document).ready(function() {
-            const chunkSize = 2 * 1024 * 1024; // 2MB per chunk
+            const chunkSize = 2 * 1024 * 1024;
             const uploadUrl = "{{ route('admin.daily-video.chunkUpload') }}";
 
-            // Toast function
+
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
                 toast.className = `toast-message toast-${type}`;
@@ -604,7 +682,6 @@
                     return;
                 }
 
-                // Generate unique filename like images
                 const timestamp = Date.now();
                 const random = Math.floor(Math.random() * 1000000000);
                 const ext = file.name.split('.').pop();
@@ -626,6 +703,10 @@
                     formData.append("fileName", fileName);
                     formData.append("chunkIndex", currentChunk);
                     formData.append("totalChunks", totalChunks);
+
+                    const uploadDate = document.getElementById('upload-date') ? document.getElementById(
+                        'upload-date').value : '';
+                    formData.append('upload_date', uploadDate);
 
                     $.ajax({
                         url: uploadUrl,
@@ -657,7 +738,7 @@
                 uploadNextChunk();
             });
 
-            // Add toast styles
+
             const style = document.createElement('style');
             style.innerHTML = `.toast-message { transition: opacity 0.3s; opacity: 0.95; font-size: 1rem; }`;
             document.head.appendChild(style);

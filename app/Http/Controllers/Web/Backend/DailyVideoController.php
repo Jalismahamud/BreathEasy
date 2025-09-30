@@ -98,19 +98,38 @@ class DailyVideoController extends Controller
         }
 
         try {
-            $today = Carbon::today('UTC');
 
-            $existing = DailyVideo::whereDate('created_at', $today)->first();
+            $uploadDate = $request->input('upload_date');
+            if ($uploadDate) {
+
+                try {
+                    $targetDate = Carbon::createFromFormat('Y-m-d', $uploadDate, 'UTC')->setTimeFromTimeString(Carbon::now('UTC')->format('H:i:s'));
+                } catch (\Exception $e) {
+                    $targetDate = Carbon::today('UTC');
+                }
+            } else {
+                $targetDate = Carbon::today('UTC');
+            }
+
+
+            $existing = DailyVideo::whereDate('created_at', $targetDate)->first();
             if ($existing) {
                 Helper::deleteImage($existing->video);
                 $existing->delete();
             }
+
             if ($request->hasFile('video')) {
                 $file = $request->file('video');
                 $videoPath = Helper::uploadImage($file, 'daily-videos');
-                DailyVideo::create([
+
+                $record = DailyVideo::create([
                     'video' => $videoPath,
                 ]);
+
+                $record->created_at = $targetDate;
+                $record->updated_at = $targetDate;
+                $record->save();
+
                 session()->put('t-success', 'Video uploaded successfully.');
             }
         } catch (Exception $e) {
@@ -123,9 +142,10 @@ class DailyVideoController extends Controller
 
     public function chunkUpload(Request $request)
     {
-        $fileName    = $request->fileName;
-        $chunkIndex  = $request->chunkIndex;
-        $totalChunks = $request->totalChunks;
+    $fileName    = $request->fileName;
+    $chunkIndex  = is_numeric($request->chunkIndex) ? intval($request->chunkIndex) : 0;
+    $totalChunks = is_numeric($request->totalChunks) ? intval($request->totalChunks) : 1;
+        $uploadDate  = $request->input('upload_date');
 
         $tempDir  = public_path('uploads/daily-videos/tmp');
         $tempPath = $tempDir . '/' . $fileName;
@@ -136,7 +156,12 @@ class DailyVideoController extends Controller
             }
 
 
-            $request->file('file')->move($tempDir, $fileName . ".part" . $chunkIndex);
+            if ($request->hasFile('file')) {
+                $request->file('file')->move($tempDir, $fileName . ".part" . $chunkIndex);
+            } else {
+                Log::warning('DailyVideo chunk upload received without file', ['fileName'=>$fileName, 'chunk'=>$chunkIndex]);
+                return response()->json(['status' => 'error', 'message' => 'No chunk file received'], 400);
+            }
 
 
             if ($chunkIndex + 1 == $totalChunks) {
@@ -158,21 +183,35 @@ class DailyVideoController extends Controller
                 }
                 fclose($out);
 
-              
-                $today = Carbon::today('UTC');
-                $existing = DailyVideo::whereDate('created_at', $today)->first();
 
+                if ($uploadDate) {
+                    try {
+                        $targetDate = Carbon::createFromFormat('Y-m-d', $uploadDate, 'UTC')->setTimeFromTimeString(Carbon::now('UTC')->format('H:i:s'));
+                    } catch (\Exception $e) {
+                        $targetDate = Carbon::today('UTC');
+                    }
+                } else {
+                    $targetDate = Carbon::today('UTC');
+                }
+
+                $existing = DailyVideo::whereDate('created_at', $targetDate)->first();
                 if ($existing) {
-
                     Helper::deleteImage($existing->video);
                     $existing->delete();
                 }
 
-                DailyVideo::create([
+                $record = DailyVideo::create([
                     'video' => 'uploads/daily-videos/' . $fileName,
                 ]);
-            }
 
+                $record->created_at = $targetDate;
+                $record->updated_at = $targetDate;
+                $record->save();
+
+                Log::info('DailyVideo chunk upload assembled', ['file' => $finalPath]);
+
+                return response()->json(['status' => 'ok', 'path' => 'uploads/daily-videos/' . $fileName], 200);
+            }
             return response()->json(['status' => 'ok']);
         } catch (Exception $e) {
             Log::error('Daily Video Chunk Upload Error: ' . $e->getMessage());

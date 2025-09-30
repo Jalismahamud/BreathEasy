@@ -55,7 +55,7 @@ class GuidedMeditationController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
-            'audio' => 'required|file|mimes:mp3,wav,m4a',
+            'audio' => 'nullable|file|mimes:mp3,wav,m4a,aac,ogg,oga,opus,flac,wma,amr,aiff,aif,mid,midi,weba',
             'audio_length' => 'nullable|string'
         ]);
 
@@ -73,7 +73,7 @@ class GuidedMeditationController extends Controller
             if ($request->hasFile('audio')) {
                 $audio = $request->file('audio');
                 $audioPath = Helper::uploadImage($audio, 'contents');
-                $validated['video'] = $audioPath; // Store audio in 'video' column
+                $validated['video'] = $audioPath;
             }
 
             $validated['video_length'] = $request->input('audio_length') ?? '00:00:00';
@@ -103,7 +103,7 @@ class GuidedMeditationController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif',
-            'audio' => 'nullable|file|mimes:mp3,wav,m4a',
+            'audio' => 'nullable|file|mimes:mp3,wav,m4a,aac,ogg,oga,opus,flac,wma,amr,aiff,aif,mid,midi,weba',
             'audio_length' => 'nullable|string'
         ]);
 
@@ -128,7 +128,7 @@ class GuidedMeditationController extends Controller
                 }
                 $audio = $request->file('audio');
                 $audioPath = Helper::uploadImage($audio, 'contents');
-                $validated['video'] = $audioPath; // Store audio in 'video' column
+                $validated['video'] = $audioPath; 
                 $validated['video_length'] = $request->input('audio_length') ?? '00:00:00';
             }
 
