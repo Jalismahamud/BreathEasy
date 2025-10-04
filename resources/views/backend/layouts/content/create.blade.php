@@ -139,6 +139,7 @@
 <!-- JS: Auto calculate video duration -->
 <script>
 document.querySelector('input[name="video"]').addEventListener('change', function (event) {
+    event.preventDefault(); // Prevent form auto-submit/reload on mobile
     const file = event.target.files[0];
     if (!file) return;
 
@@ -162,6 +163,10 @@ document.querySelector('input[name="video"]').addEventListener('change', functio
     };
 
     video.src = URL.createObjectURL(file);
+});
+// Also prevent default for image input
+document.querySelector('input[name="image"]').addEventListener('change', function (event) {
+    event.preventDefault();
 });
 </script>
 
