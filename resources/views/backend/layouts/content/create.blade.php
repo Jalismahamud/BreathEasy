@@ -90,14 +90,14 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Upload Image:</label>
-                                        <input type="file" name="image" class="dropify form-control @error('image') is-invalid @enderror" data-allowed-file-extensions="jpg jpeg png gif" data-max-file-size="50M" style="height: 150px;" />
+                                        <input type="file" name="image" class="dropify form-control @error('image') is-invalid @enderror" data-allowed-file-extensions="jpg jpeg png gif heic webp" data-max-file-size="50M" style="height: 150px;" />
                                         @error('image')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Upload Videos:</label>
-                                        <input type="file" id="video-file-input" name="video" class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm mpeg mpg 3gp 3g2 ogv mts m2ts ts f4v vob" style="height: 120px;" />
+                                        <input type="file" id="video-file-input" name="video" class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm mpeg mpg 3gp 3g2 ogv mts m2ts ts f4v vob heic" style="height: 120px;" />
                                         <div class="d-flex align-items-center mt-2">
                                             <button type="button" id="content-upload-btn" class="btn btn-primary btn-sm me-2">Chunk Upload Video</button>
                                             <div id="content-upload-progress" style="display:none; width:200px; background:#f1f5f9; border-radius:6px; overflow:hidden;">
