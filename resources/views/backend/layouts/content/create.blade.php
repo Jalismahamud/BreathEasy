@@ -99,7 +99,7 @@
                                         <label class="form-label">Upload Video:</label>
                                         <input type="file" id="video-file-input" name="video" class="dropify form-control @error('video') is-invalid @enderror" accept="video/*" style="height: 120px;" />
                                         <div class="d-flex align-items-center mt-2">
-                                            <button type="button" id="content-upload-btn" class="btn btn-primary btn-sm me-2">Chunk Upload Video</button>
+                                            <button type="button" id="content-upload-btn" class="btn btn-primary btn-sm me-2">Upload Video</button>
                                             <div id="content-upload-progress" style="display:none; width:200px; background:#f1f5f9; border-radius:6px; overflow:hidden;">
                                                 <div id="content-upload-bar" style="width:0%; height:12px; background:#22c55e;"></div>
                                             </div>
