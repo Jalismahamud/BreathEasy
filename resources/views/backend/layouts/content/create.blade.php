@@ -96,7 +96,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Upload Video:</label>
+                                        <label class="form-label">Upload Videos:</label>
                                         <input type="file" id="video-file-input" name="video" class="dropify form-control @error('video') is-invalid @enderror" data-allowed-file-extensions="mp4 avi mov mkv wmv flv webm mpeg mpg 3gp 3g2 ogv mts m2ts ts f4v vob" style="height: 120px;" />
                                         <div class="d-flex align-items-center mt-2">
                                             <button type="button" id="content-upload-btn" class="btn btn-primary btn-sm me-2">Chunk Upload Video</button>
@@ -175,7 +175,7 @@ document.querySelector('input[name="image"]').addEventListener('change', functio
         // customize Dropify for video only, increase box height, and show error for non-video files
         $('.dropify').dropify({
             messages: {
-                'default': 'Drag and drop a video here or click to select',
+                'default': 'Drag and drop a file here or click to select',
                 'replace': 'Drag and drop or click to replace',
                 'remove':  'Remove',
                 'error':   'Oops, something wrong appended.'
