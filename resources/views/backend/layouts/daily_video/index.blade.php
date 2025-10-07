@@ -47,11 +47,18 @@
             border-radius: 0.5rem;
         }
 
+        /* Responsive Calendar Table */
+        .calendar-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .calendar-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0.5rem;
             margin-top: 2rem;
+            min-width: 600px;
         }
 
         .calendar-table th,
@@ -69,7 +76,6 @@
 
         .calendar-table td.has-video {
             border: 2px solid #3b82f6 !important;
-            /* primary border */
         }
 
         .calendar-table td.has-video:hover {
@@ -92,6 +98,7 @@
             height: 100px;
         }
 
+        /* Video Popup - Responsive */
         .calendar-popup {
             display: none;
             position: fixed;
@@ -104,11 +111,15 @@
             box-shadow: 0 8px 32px rgba(44, 62, 80, 0.25);
             padding: 1.5rem 2rem;
             text-align: center;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .calendar-popup video {
-            width: 400px;
-            max-width: 90vw;
+            width: 100%;
+            max-width: 500px;
+            max-height: 70vh;
             border-radius: 0.5rem;
         }
 
@@ -118,6 +129,7 @@
             margin-top: 0.5rem;
         }
 
+        /* Hover Card - Fixed Width & Responsive */
         .calendar-hover-card {
             display: none;
             position: fixed;
@@ -125,19 +137,25 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 9999;
-            width: 540px;
-            max-width: 98vw;
+            width: 90vw;
+            max-width: 540px;
             background: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 8px 32px rgba(44, 62, 80, 0.25);
-            padding: 2rem 2.5rem;
+            padding: 2rem 1.5rem;
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .calendar-hover-card video {
-            width: 480px;
-            max-width: 95vw;
+            width: 100%;
+            max-width: 480px;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
             border-radius: 0.5rem;
+            background: #000;
         }
 
         .calendar-hover-card .close-btn {
@@ -149,30 +167,21 @@
             font-size: 1.5rem;
             color: #888;
             cursor: pointer;
+            z-index: 10;
         }
 
         .calendar-hover-card .close-hint {
             color: #888;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             margin-top: 0.5rem;
         }
 
-        .calendar-year-scroll {
-            max-height: 200px;
-            overflow-y: auto;
-            min-width: 80px;
-            border: 1px solid #e0e7ef;
-            border-radius: 0.5rem;
-            background: #f8fafc;
-        }
-
+        /* Floating Hover List - Responsive */
         .calendar-hover-card-list {
-            /* keep in-cell list for accessibility, but hide visually by default; we'll clone/float it on hover */
             display: none;
             visibility: hidden;
         }
 
-        /* Floating clone appended to body so it won't be clipped by table/container overflow */
         .floating-calendar-hover-card-list {
             display: flex !important;
             justify-content: center;
@@ -222,9 +231,101 @@
 
         .calendar-hover-card-video-thumb .small.text-muted {
             margin-top: 0.25rem;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: #666;
             text-align: center;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .calendar-table {
+                min-width: 100%;
+                border-spacing: 0.25rem;
+            }
+
+            .calendar-table th,
+            .calendar-table td {
+                min-width: 45px;
+                min-height: 60px;
+                font-size: 0.85rem;
+                padding: 0.25rem;
+            }
+
+            .calendar-table td {
+                height: 60px;
+            }
+
+            .calendar-hover-card {
+                padding: 1rem;
+                width: 95vw;
+            }
+
+            .calendar-hover-card video {
+                max-width: 100%;
+                max-height: 60vh;
+            }
+
+            .floating-calendar-hover-card-list {
+                padding: 0.25rem 0.5rem;
+                gap: 0.15rem;
+            }
+
+            .calendar-hover-card-video-thumb {
+                min-width: 80px;
+                padding: 0.15rem 0.25rem;
+            }
+
+            .calendar-hover-card-video-thumb video {
+                width: 80px !important;
+                height: 40px !important;
+            }
+
+            .calendar-hover-card-video-thumb .small.text-muted {
+                font-size: 0.75rem;
+            }
+
+            .calendar-hover-card .close-hint {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-table th,
+            .calendar-table td {
+                min-width: 35px;
+                min-height: 50px;
+                font-size: 0.75rem;
+            }
+
+            .calendar-hover-card-video-thumb {
+                min-width: 70px;
+            }
+
+            .calendar-hover-card-video-thumb video {
+                width: 70px !important;
+                height: 35px !important;
+            }
+        }
+
+        /* Filter Controls Responsive */
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-controls select,
+            .filter-controls button {
+                width: 100%;
+            }
         }
     </style>
 @endpush
@@ -269,29 +370,30 @@
                 </form>
 
                 <hr>
-                <div class="d-flex align-items-center mb-3">
-                    <label for="month-filter" class="me-2 mb-0">Month:</label>
-                    <select id="month-filter" class="form-select me-3" style="width: 120px; display: inline-block;">
+
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <label for="month-filter" class="mb-0">Month:</label>
+                    <select id="month-filter" class="form-select" style="max-width: 150px;">
                         @for ($m = 1; $m <= 12; $m++)
                             <option value="{{ $m }}" @if ($m == $selectedMonth) selected @endif>
                                 {{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
                         @endfor
                     </select>
-                    <label for="year-filter" class="me-2 mb-0">Year:</label>
-                    <select id="year-filter" class="form-select" style="width: 100px; display: inline-block;">
+
+                    <label for="year-filter" class="mb-0">Year:</label>
+                    <select id="year-filter" class="form-select" style="max-width: 120px;">
                         @for ($y = $today->year - 1; $y <= $today->year + 5; $y++)
                             <option value="{{ $y }}" @if ($y == $selectedYear) selected @endif>
                                 {{ $y }}</option>
                         @endfor
                     </select>
-                    <button id="filter-btn" class="btn btn-outline-primary ms-3">Filter</button>
-                    <button id="reset-btn" class="btn btn-outline-secondary ms-2">Reset Filter</button>
+
+                    <button id="reset-btn" class="btn btn-outline-secondary">Reset</button>
                 </div>
+
                 <h5 class="mt-4">Calendar View</h5>
                 @php
-                    $today = \Carbon\Carbon::today();
-                    $selectedMonth = (int) request('month', $today->month);
-                    $selectedYear = (int) request('year', $today->year);
                     $monthStart = \Carbon\Carbon::create($selectedYear, $selectedMonth, 1);
                     $monthEnd = $monthStart->copy()->endOfMonth();
                     $calendar = [];
@@ -300,57 +402,59 @@
                         $calendar[$date][] = $video;
                     }
                 @endphp
-                <table class="calendar-table">
-                    <thead>
-                        <tr>
-                            <th>Sun</th>
-                            <th>Mon</th>
-                            <th>Tue</th>
-                            <th>Wed</th>
-                            <th>Thu</th>
-                            <th>Fri</th>
-                            <th>Sat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $date = $monthStart->copy()->startOfWeek(); @endphp
-                        @while ($date->lte($monthEnd->copy()->endOfWeek()))
-                            <tr>
-                                @for ($d = 0; $d < 7; $d++)
-                                    @if ($date->month == $selectedMonth)
-                                        <td class="{{ $date->isToday() ? 'today' : '' }} {{ isset($calendar[$date->toDateString()]) ? 'has-video' : '' }}"
-                                            data-date="{{ $date->toDateString() }}">
-                                            <div>{{ $date->format('j') }}</div>
-                                            @if (isset($calendar[$date->toDateString()]))
-                                                <div class="calendar-hover-card-list">
 
-                                                    @foreach ($calendar[$date->toDateString()] as $video)
-                                                        <div class="calendar-hover-card-video-thumb"
-                                                            data-video-url="{{ asset($video->video) }}"
-                                                            data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
-                                                            <video muted preload="metadata"
-                                                                onloadedmetadata="this.nextElementSibling.textContent = Math.floor(this.duration/60) + ':' + ('0' + Math.floor(this.duration%60)).slice(-2)"
-                                                                style="width: 50px; height: 30px; border-radius: 0.5rem; object-fit: cover;">
-                                                                <source src="{{ asset($video->video) }}" type="video/mp4">
-                                                                <source src="{{ asset($video->video) }}" type="video/*">
-                                                            </video>
-                                                            <div class="small text-muted" data-duration="loading...">
-                                                                {{ $video->created_at->format('H:i') }}
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        </td>
-                                    @else
-                                        <td style="background: none; box-shadow: none;"></td>
-                                    @endif
-                                    @php $date->addDay(); @endphp
-                                @endfor
+                <div class="calendar-wrapper">
+                    <table class="calendar-table">
+                        <thead>
+                            <tr>
+                                <th>Sun</th>
+                                <th>Mon</th>
+                                <th>Tue</th>
+                                <th>Wed</th>
+                                <th>Thu</th>
+                                <th>Fri</th>
+                                <th>Sat</th>
                             </tr>
-                        @endwhile
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @php $date = $monthStart->copy()->startOfWeek(); @endphp
+                            @while ($date->lte($monthEnd->copy()->endOfWeek()))
+                                <tr>
+                                    @for ($d = 0; $d < 7; $d++)
+                                        @if ($date->month == $selectedMonth)
+                                            <td class="{{ $date->isToday() ? 'today' : '' }} {{ isset($calendar[$date->toDateString()]) ? 'has-video' : '' }}"
+                                                data-date="{{ $date->toDateString() }}">
+                                                <div>{{ $date->format('j') }}</div>
+                                                @if (isset($calendar[$date->toDateString()]))
+                                                    <div class="calendar-hover-card-list">
+                                                        @foreach ($calendar[$date->toDateString()] as $video)
+                                                            <div class="calendar-hover-card-video-thumb"
+                                                                data-video-url="{{ asset($video->video) }}"
+                                                                data-uploaded="{{ $video->created_at->timezone('UTC')->toDayDateTimeString() }}">
+                                                                <video muted preload="metadata"
+                                                                    onloadedmetadata="this.nextElementSibling.textContent = Math.floor(this.duration/60) + ':' + ('0' + Math.floor(this.duration%60)).slice(-2)"
+                                                                    style="width: 50px; height: 30px; border-radius: 0.5rem; object-fit: cover;">
+                                                                    <source src="{{ asset($video->video) }}" type="video/mp4">
+                                                                    <source src="{{ asset($video->video) }}" type="video/*">
+                                                                </video>
+                                                                <div class="small text-muted" data-duration="loading...">
+                                                                    {{ $video->created_at->format('H:i') }}
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </td>
+                                        @else
+                                            <td style="background: none; box-shadow: none;"></td>
+                                        @endif
+                                        @php $date->addDay(); @endphp
+                                    @endfor
+                                </tr>
+                            @endwhile
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -363,22 +467,8 @@
                 $('.auto-dismiss').fadeOut('slow');
             }, 5000);
 
-
+            // Auto-redirect on month/year change
             $('#month-filter, #year-filter').on('change', function() {
-                var selectedMonth = $('#month-filter').val();
-                var selectedYear = $('#year-filter').val();
-                $('.calendar-table td').each(function() {
-                    var cellDate = $(this).data('date');
-                    if (!cellDate) return;
-                    var dateObj = new Date(cellDate);
-                    var show = true;
-                    if (selectedMonth && (dateObj.getMonth() + 1) != selectedMonth) show = false;
-                    if (selectedYear && dateObj.getFullYear() != selectedYear) show = false;
-                    $(this).toggle(show);
-                });
-            });
-
-            $('#filter-btn').on('click', function() {
                 var month = $('#month-filter').val();
                 var year = $('#year-filter').val();
                 window.location.href = '?month=' + month + '&year=' + year;
@@ -391,7 +481,6 @@
                 window.location.href = '?month=' + month + '&year=' + year;
             });
 
-
             let floatingList = null;
             let hoverTimeout = null;
 
@@ -400,7 +489,6 @@
                 const $list = $cell.find('.calendar-hover-card-list');
 
                 if (!$list.length) return;
-
 
                 $list.find('video').each(function() {
                     const video = this;
@@ -412,12 +500,10 @@
                         this.setAttribute('data-loaded', 'true');
 
                         $(this).on('loadedmetadata', function() {
-                            if (video.duration && !isNaN(video.duration) && video.duration >
-                                0) {
+                            if (video.duration && !isNaN(video.duration) && video.duration > 0) {
                                 const minutes = Math.floor(video.duration / 60);
                                 const seconds = Math.floor(video.duration % 60);
-                                const durationText = minutes + ':' + (seconds < 10 ? '0' :
-                                    '') + seconds;
+                                const durationText = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
                                 $durationDiv.text(durationText);
                             }
                         });
@@ -439,8 +525,7 @@
                 $('body').append(floatingList);
 
                 const cellRect = $cell[0].getBoundingClientRect();
-                const listWidth = Math.min(Math.max(240, floatingList.outerWidth(true)), $(window).width() -
-                    40);
+                const listWidth = Math.min(Math.max(240, floatingList.outerWidth(true)), $(window).width() - 40);
                 floatingList.css('width', listWidth + 'px');
 
                 const spaceBelow = $(window).height() - cellRect.bottom;
@@ -450,10 +535,8 @@
                 left = Math.max(12, Math.min(left, $(window).width() - listWidth - 12));
 
                 if (spaceBelow > 120 || spaceBelow > spaceAbove) {
-
                     top = cellRect.bottom + 10 + window.scrollY;
                 } else {
-
                     top = cellRect.top - floatingList.outerHeight(true) - 10 + window.scrollY;
                 }
 
@@ -463,18 +546,10 @@
                 });
                 floatingList.stop(true, true).fadeIn(120);
 
-
                 clearTimeout(hoverTimeout);
-                hoverTimeout = setTimeout(function() {
-
-                }, 0);
-
-
             });
 
-
             $(document).on('mouseleave', '.calendar-table td.has-video', function() {
-
                 if (hoverTimeout) clearTimeout(hoverTimeout);
                 hoverTimeout = setTimeout(function() {
                     if (floatingList) {
@@ -486,10 +561,10 @@
                 }, 120);
             });
 
-
             $(document).on('mouseenter', '.floating-calendar-hover-card-list', function() {
                 if (hoverTimeout) clearTimeout(hoverTimeout);
             });
+
             $(document).on('mouseleave', '.floating-calendar-hover-card-list', function() {
                 var $fl = $(this);
                 hoverTimeout = setTimeout(function() {
@@ -500,10 +575,8 @@
                 }, 120);
             });
 
-
             let cardOpen = false;
             let cardEl = null;
-
 
             $(document).on('click', '.calendar-hover-card-video-thumb', function(e) {
                 e.stopPropagation();
@@ -522,7 +595,7 @@
 
                 cardEl = $('<div class="calendar-hover-card" style="display:block;">' +
                     '<button class="close-btn" title="Close">&times;</button>' +
-                    '<video controls preload="auto" autoplay muted poster="{{ asset('default/video.png') }}" style="width: 480px; max-width: 95vw; border-radius: 0.5rem;">' +
+                    '<video controls preload="auto" autoplay muted style="width: 100%; max-width: 480px; height: auto; max-height: 70vh; object-fit: contain; border-radius: 0.5rem; background: #000;">' +
                     '<source src="' + videoUrl + '" type="video/mp4">' +
                     '<source src="' + videoUrl + '" type="video/*">' +
                     'Your browser does not support the video tag.' +
@@ -534,22 +607,16 @@
                 $('body').append(cardEl);
                 cardOpen = true;
 
-
                 const mainVideo = cardEl.find('video')[0];
                 mainVideo.load();
 
-
                 $(mainVideo).on('canplay', function() {
-
                     console.log('Video ready to play');
                 }).on('loadedmetadata', function() {
-
                     console.log('Video metadata loaded, duration:', this.duration);
                 }).on('error', function(e) {
                     console.error('Main video failed to load:', videoUrl, e);
-                    $(this).after(
-                        '<div class="text-danger mt-2">Video failed to load. Please check the file.</div>'
-                        );
+                    $(this).after('<div class="text-danger mt-2">Video failed to load. Please check the file.</div>');
                 });
 
                 setTimeout(function() {
@@ -558,8 +625,7 @@
 
                 setTimeout(function() {
                     $(document).on('mousedown.card', function(ev) {
-                        if (cardEl && !$(ev.target).closest('.calendar-hover-card')
-                            .length) {
+                        if (cardEl && !$(ev.target).closest('.calendar-hover-card').length) {
                             cardEl.remove();
                             cardOpen = false;
                             $(document).off('mousedown.card');
@@ -586,13 +652,6 @@
                     cardEl.remove();
                     cardOpen = false;
                 }
-            });
-
-            $('#goto-current').on('click', function() {
-                const today = new Date();
-                const month = today.getMonth() + 1;
-                const year = today.getFullYear();
-                window.location.href = '?month=' + month + '&year=' + year;
             });
 
             const videoInput = document.getElementById('video');
@@ -652,7 +711,6 @@
         $(document).ready(function() {
             const chunkSize = 2 * 1024 * 1024;
             const uploadUrl = "{{ route('admin.daily-video.chunkUpload') }}";
-
 
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
@@ -737,7 +795,6 @@
 
                 uploadNextChunk();
             });
-
 
             const style = document.createElement('style');
             style.innerHTML = `.toast-message { transition: opacity 0.3s; opacity: 0.95; font-size: 1rem; }`;

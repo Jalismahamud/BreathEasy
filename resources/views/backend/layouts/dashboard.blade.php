@@ -8,7 +8,6 @@
             <!-- CONTAINER -->
             <div class="main-container container-fluid">
 
-
                 <!-- PAGE-HEADER -->
                 <div class="page-header">
                     <div>
@@ -25,15 +24,16 @@
 
                 <!-- ROW-1 -->
                 <div class="row">
-                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3">
-                        <div class="card overflow-hidden">
+                    <!-- Total Users -->
+                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3 mb-3">
+                        <div class="card overflow-hidden h-100">
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row align-items-center">
                                     <div class="col">
                                         <h3 class="mb-2 fw-semibold">{{ $totalUser }}</h3>
                                         <p class="text-muted fs-13 mb-0">Total Users</p>
                                     </div>
-                                    <div class="col col-auto top-icn dash">
+                                    <div class="col-auto">
                                         <div class="counter-icon bg-primary dash ms-auto box-shadow-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="fill-white"
                                                 enable-background="new 0 0 24 24" viewBox="0 0 16 16">
@@ -48,17 +48,16 @@
                         </div>
                     </div>
 
-
-
-                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3">
-                        <div class="card overflow-hidden">
+                    <!-- Total Categories -->
+                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3 mb-3">
+                        <div class="card overflow-hidden h-100">
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row align-items-center">
                                     <div class="col">
                                         <h3 class="mb-2 fw-semibold">{{ $totalCategory }}</h3>
                                         <p class="text-muted fs-13 mb-0">Total Categories</p>
                                     </div>
-                                    <div class="col col-auto top-icn dash">
+                                    <div class="col-auto">
                                         <div class="counter-icon bg-warning dash ms-auto box-shadow-warning">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="fill-white"
                                                 enable-background="new 0 0 24 24" viewBox="0 0 16 16">
@@ -76,17 +75,16 @@
                         </div>
                     </div>
 
-
-
-                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3">
-                        <div class="card overflow-hidden">
+                    <!-- Total Content -->
+                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3 mb-3">
+                        <div class="card overflow-hidden h-100">
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row align-items-center">
                                     <div class="col">
                                         <h3 class="mb-2 fw-semibold">{{ $totalContent }}</h3>
                                         <p class="text-muted fs-13 mb-0">Total Content</p>
                                     </div>
-                                    <div class="col col-auto top-icn dash">
+                                    <div class="col-auto">
                                         <div class="counter-icon bg-secondary dash ms-auto box-shadow-secondary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="fill-white"
                                                 enable-background="new 0 0 24 24" viewBox="0 0 16 16">
@@ -100,16 +98,16 @@
                         </div>
                     </div>
 
-
-                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3">
-                        <div class="card overflow-hidden">
+                    <!-- Total FAQs -->
+                    <div class="col-lg-6 col-sm-12 col-md-6 col-xl-3 mb-3">
+                        <div class="card overflow-hidden h-100">
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row align-items-center">
                                     <div class="col">
                                         <h3 class="mb-2 fw-semibold">{{ $faq }}</h3>
                                         <p class="text-muted fs-13 mb-0">Total Faqs</p>
                                     </div>
-                                    <div class="col col-auto top-icn dash">
+                                    <div class="col-auto">
                                         <div class="counter-icon bg-success dash ms-auto box-shadow-warning">
                                             <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24"
                                                 width="16">
@@ -117,7 +115,6 @@
                                                 <path
                                                     d="M12 2L2 7v15c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7l-10-5zm0 2.1L18 7v13H6V7l6-2.9zM9 11h2v2H9v-2zm4 0h2v2h-2v-2zm-4 4h2v2H9v-2zm4 0h2v2h-2v-2z" />
                                             </svg>
-
                                         </div>
                                     </div>
                                 </div>
@@ -125,34 +122,29 @@
                         </div>
                     </div>
 
-
-                    <div class="">
+                    <!-- Chart Section -->
+                    <div class="col-12">
                         <form method="GET" class="mb-4">
                             <label for="month">Select Month:</label>
                             <input type="month" id="month" name="month" value="{{ $selectedMonth }}"
                                 onchange="this.form.submit()" class="form-control" style="max-width: 300px;">
                         </form>
 
-                        <!-- Chart -->
                         <div class="card shadow mb-5">
-                            <div class="card-header d-flex align-items-center gap-3">
-                                <div>
-                                    User Join Statistics -- {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}
-                                </div>
-                                <div>
-                                    <span class="fw-semibold">Total Users = {{ $monthlyJoinedUsers }}</span>
-                                </div>
+                            <div
+                                class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                <div>User Join Statistics -- {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}</div>
+                                <div><span class="fw-semibold">Total Users = {{ $monthlyJoinedUsers }}</span></div>
                             </div>
                             <div class="card-body">
-                                <canvas id="dashboardChart" height="80"></canvas>
+                                <div class="chart-container" style="position: relative; height:60vh; width:100%;">
+                                    <canvas id="dashboardChart"></canvas>
+                                </div>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
                 <!-- ROW-1 END-->
-
 
             </div>
         </div>
@@ -173,75 +165,14 @@
                 datasets: [{
                     label: 'User Data',
                     data: userData,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(201, 203, 207, 0.2)',
-                        'rgba(255, 99, 71, 0.2)',
-                        'rgba(0, 128, 128, 0.2)',
-                        'rgba(220, 20, 60, 0.2)',
-                        'rgba(0, 191, 255, 0.2)',
-                        'rgba(255, 140, 0, 0.2)',
-                        'rgba(46, 139, 87, 0.2)',
-                        'rgba(138, 43, 226, 0.2)',
-                        'rgba(205, 92, 92, 0.2)',
-                        'rgba(70, 130, 180, 0.2)',
-                        'rgba(218, 165, 32, 0.2)',
-                        'rgba(199, 21, 133, 0.2)',
-                        'rgba(34, 139, 34, 0.2)',
-                        'rgba(244, 164, 96, 0.2)',
-                        'rgba(72, 61, 139, 0.2)',
-                        'rgba(127, 255, 0, 0.2)',
-                        'rgba(106, 90, 205, 0.2)',
-                        'rgba(240, 128, 128, 0.2)',
-                        'rgba(0, 206, 209, 0.2)',
-                        'rgba(160, 82, 45, 0.2)',
-                        'rgba(100, 149, 237, 0.2)',
-                        'rgba(210, 105, 30, 0.2)',
-                        'rgba(95, 158, 160, 0.2)',
-                        'rgba(128, 0, 128, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(201, 203, 207, 1)',
-                        'rgba(255, 99, 71, 1)',
-                        'rgba(0, 128, 128, 1)',
-                        'rgba(220, 20, 60, 1)',
-                        'rgba(0, 191, 255, 1)',
-                        'rgba(255, 140, 0, 1)',
-                        'rgba(46, 139, 87, 1)',
-                        'rgba(138, 43, 226, 1)',
-                        'rgba(205, 92, 92, 1)',
-                        'rgba(70, 130, 180, 1)',
-                        'rgba(218, 165, 32, 1)',
-                        'rgba(199, 21, 133, 1)',
-                        'rgba(34, 139, 34, 1)',
-                        'rgba(244, 164, 96, 1)',
-                        'rgba(72, 61, 139, 1)',
-                        'rgba(127, 255, 0, 1)',
-                        'rgba(106, 90, 205, 1)',
-                        'rgba(240, 128, 128, 1)',
-                        'rgba(0, 206, 209, 1)',
-                        'rgba(160, 82, 45, 1)',
-                        'rgba(100, 149, 237, 1)',
-                        'rgba(210, 105, 30, 1)',
-                        'rgba(95, 158, 160, 1)',
-                        'rgba(128, 0, 128, 1)'
-                    ],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false, // chart fully responsive
                 plugins: {
                     legend: {
                         position: 'top'
@@ -252,6 +183,13 @@
                     }
                 },
                 scales: {
+                    x: {
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
+                    },
                     y: {
                         beginAtZero: true
                     }
