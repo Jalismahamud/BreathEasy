@@ -104,7 +104,7 @@
                                         </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Upload Video:</label>
-                                                <input type="file" id="video-file-input" name="video" class="dropify form-control @error('video') is-invalid @enderror" accept="video/*" style="height: 120px;"
+                                                <input type="file" id="video-file-input" name="video" class="dropify @error('video') is-invalid @enderror" accept="video/*" style="height: 120px;"
                                                 @if($data->video)
                                                     data-default-file="{{ asset($data->video) }}"
                                                 @endif

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\File;
 
 class ContentController extends Controller
 {
@@ -208,57 +209,6 @@ class ContentController extends Controller
     }
 
 
-    // public function chunkUpload(Request $request)
-    // {
-    // $fileName    = $request->fileName;
-    // $chunkIndex  = is_numeric($request->chunkIndex) ? intval($request->chunkIndex) : 0;
-    // $totalChunks = is_numeric($request->totalChunks) ? intval($request->totalChunks) : 1;
-
-    //     $tempDir  = public_path('uploads/contents/tmp');
-    //     $tempPath = $tempDir . '/' . $fileName;
-
-    //     try {
-    //         if (!\Illuminate\Support\Facades\File::exists($tempDir)) {
-    //             \Illuminate\Support\Facades\File::makeDirectory($tempDir, 0777, true);
-    //         }
-
-    //         // move current chunk
-    //         if ($request->hasFile('file')) {
-    //             $request->file('file')->move($tempDir, $fileName . ".part" . $chunkIndex);
-    //         } else {
-    //             \Illuminate\Support\Facades\Log::warning('Content chunk upload received without file', ['fileName'=>$fileName, 'chunk'=>$chunkIndex]);
-    //             return response()->json(['status' => 'error', 'message' => 'No chunk file received'], 400);
-    //         }
-
-    //         if ($chunkIndex + 1 == $totalChunks) {
-    //             $finalDir = public_path('uploads/contents');
-    //             if (!\Illuminate\Support\Facades\File::exists($finalDir)) {
-    //                 \Illuminate\Support\Facades\File::makeDirectory($finalDir, 0777, true);
-    //             }
-
-    //             $finalPath = $finalDir . '/' . $fileName;
-
-    //             $out = fopen($finalPath, "ab");
-    //             for ($i = 0; $i < $totalChunks; $i++) {
-    //                 $chunkFile = $tempDir . '/' . $fileName . ".part" . $i;
-    //                 $in = fopen($chunkFile, "rb");
-    //                 stream_copy_to_stream($in, $out);
-    //                 fclose($in);
-    //                 unlink($chunkFile);
-    //             }
-    //             fclose($out);
-
-    //             \Illuminate\Support\Facades\Log::info('Content chunk upload assembled', ['file' => $finalPath]);
-    //             return response()->json(['status' => 'ok', 'path' => 'uploads/contents/' . $fileName], 200);
-    //         }
-
-    //         return response()->json(['status' => 'ok']);
-    //     } catch (Exception $e) {
-    //         \Illuminate\Support\Facades\Log::error('Content Chunk Upload Error: ' . $e->getMessage());
-    //         return response()->json(['status' => 'error', 'message' => 'Upload failed.'], 500);
-    //     }
-    // }
-
     public function chunkUpload(Request $request)
     {
         $fileName    = $request->fileName;
@@ -277,6 +227,7 @@ class ContentController extends Controller
             if ($request->hasFile('file')) {
                 $request->file('file')->move($tempDir, $fileName . ".part" . $chunkIndex);
             } else {
+                \Illuminate\Support\Facades\Log::warning('Content chunk upload received without file', ['fileName' => $fileName, 'chunk' => $chunkIndex]);
                 return response()->json(['status' => 'error', 'message' => 'No chunk file received'], 400);
             }
 
@@ -298,32 +249,106 @@ class ContentController extends Controller
                 }
                 fclose($out);
 
-                // ===== HLS Conversion =====
-                $videoBaseName = pathinfo($fileName, PATHINFO_FILENAME);
-                $hlsDir = $finalDir . '/' . $videoBaseName;
-                if (!\Illuminate\Support\Facades\File::exists($hlsDir)) {
-                    \Illuminate\Support\Facades\File::makeDirectory($hlsDir, 0777, true);
-                }
-
-                $hlsPath = $hlsDir . '/' . $videoBaseName . '.m3u8';
-                $cmd = "ffmpeg -i {$finalPath} -profile:v baseline -level 3.0 -start_number 0 -hls_time 5 -hls_list_size 0 -f hls {$hlsPath} -hide_banner -loglevel error";
-                exec($cmd, $output, $returnCode);
-
-                if ($returnCode !== 0) {
-                    \Illuminate\Support\Facades\Log::error('FFmpeg failed: ' . implode("\n", $output));
-                    return response()->json(['status' => 'error', 'message' => 'HLS conversion failed'], 500);
-                }
-
-                // Path to return to frontend
-                $hlsUrl = 'uploads/contents/' . $videoBaseName . '/' . $videoBaseName . '.m3u8';
-
-                return response()->json(['status' => 'ok', 'path' => $hlsUrl], 200);
+                \Illuminate\Support\Facades\Log::info('Content chunk upload assembled', ['file' => $finalPath]);
+                return response()->json(['status' => 'ok', 'path' => 'uploads/contents/' . $fileName], 200);
             }
 
             return response()->json(['status' => 'ok']);
         } catch (Exception $e) {
             \Illuminate\Support\Facades\Log::error('Content Chunk Upload Error: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Upload failed.'], 500);
+        }
+    }
+
+    // public function chunkUpload(Request $request)
+    // {
+    //     $fileName    = $request->fileName;
+    //     $chunkIndex  = is_numeric($request->chunkIndex) ? intval($request->chunkIndex) : 0;
+    //     $totalChunks = is_numeric($request->totalChunks) ? intval($request->totalChunks) : 1;
+
+    //     $tempDir  = public_path('uploads/contents/tmp');
+    //     $tempPath = $tempDir . '/' . $fileName;
+
+    //     try {
+    //         if (!\Illuminate\Support\Facades\File::exists($tempDir)) {
+    //             \Illuminate\Support\Facades\File::makeDirectory($tempDir, 0777, true);
+    //         }
+
+    //         // move current chunk
+    //         if ($request->hasFile('file')) {
+    //             $request->file('file')->move($tempDir, $fileName . ".part" . $chunkIndex);
+    //         } else {
+    //             return response()->json(['status' => 'error', 'message' => 'No chunk file received'], 400);
+    //         }
+
+    //         if ($chunkIndex + 1 == $totalChunks) {
+    //             $finalDir = public_path('uploads/contents');
+    //             if (!\Illuminate\Support\Facades\File::exists($finalDir)) {
+    //                 \Illuminate\Support\Facades\File::makeDirectory($finalDir, 0777, true);
+    //             }
+
+    //             $finalPath = $finalDir . '/' . $fileName;
+
+    //             $out = fopen($finalPath, "ab");
+    //             for ($i = 0; $i < $totalChunks; $i++) {
+    //                 $chunkFile = $tempDir . '/' . $fileName . ".part" . $i;
+    //                 $in = fopen($chunkFile, "rb");
+    //                 stream_copy_to_stream($in, $out);
+    //                 fclose($in);
+    //                 unlink($chunkFile);
+    //             }
+    //             fclose($out);
+
+    //             // ===== HLS Conversion =====
+    //             $videoBaseName = pathinfo($fileName, PATHINFO_FILENAME);
+    //             $hlsDir = $finalDir . '/' . $videoBaseName;
+    //             if (!\Illuminate\Support\Facades\File::exists($hlsDir)) {
+    //                 \Illuminate\Support\Facades\File::makeDirectory($hlsDir, 0777, true);
+    //             }
+
+    //             $hlsPath = $hlsDir . '/' . $videoBaseName . '.m3u8';
+    //             $cmd = "ffmpeg -i {$finalPath} -profile:v baseline -level 3.0 -start_number 0 -hls_time 5 -hls_list_size 0 -f hls {$hlsPath} -hide_banner -loglevel error";
+    //             exec($cmd, $output, $returnCode);
+
+    //             if ($returnCode !== 0) {
+    //                 \Illuminate\Support\Facades\Log::error('FFmpeg failed: ' . implode("\n", $output));
+    //                 return response()->json(['status' => 'error', 'message' => 'HLS conversion failed'], 500);
+    //             }
+
+    //             // Path to return to frontend
+    //             $hlsUrl = 'uploads/contents/' . $videoBaseName . '/' . $videoBaseName . '.m3u8';
+
+    //             return response()->json(['status' => 'ok', 'path' => $hlsUrl], 200);
+    //         }
+
+    //         return response()->json(['status' => 'ok']);
+    //     } catch (Exception $e) {
+    //         \Illuminate\Support\Facades\Log::error('Content Chunk Upload Error: ' . $e->getMessage());
+    //         return response()->json(['status' => 'error', 'message' => 'Upload failed.'], 500);
+    //     }
+    // }
+
+    public function cancelUpload(Request $request)
+    {
+        $fileName = $request->fileName;
+        if (!$fileName) {
+            return response()->json(['status' => 'error', 'message' => 'No file name provided'], 400);
+        }
+        $tempDir = public_path('uploads/contents/tmp');
+
+        try {
+            $chunks = glob($tempDir . '/' . $fileName . '.part*');
+
+            foreach ($chunks as $chunk) {
+                if (File::exists($chunk)) {
+                    File::delete($chunk);
+                }
+            }
+
+            return response()->json(['status' => 'ok', 'message' => 'Upload cancelled and chunks deleted']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Cancel Upload Error: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Failed to cancel upload'], 500);
         }
     }
 }

@@ -59,6 +59,7 @@ Route::prefix('content')->name('admin.content.')->group(function () {
     Route::get('/create', [ContentController::class, 'create'])->name('create');
     Route::post('/store', [ContentController::class, 'store'])->name('store');
     Route::post('/chunk-upload', [ContentController::class, 'chunkUpload'])->name('chunkUpload');
+    Route::post('/cancel-upload', [ContentController::class, 'cancelUpload'])->name('cancelUpload');
     Route::get('/edit/{id}', [ContentController::class, 'edit'])->name('edit');
     Route::put('/update/{id}', [ContentController::class, 'update'])->name('update');
     Route::delete('/destroy/{id}', [ContentController::class, 'destroy'])->name('destroy');
