@@ -76,7 +76,7 @@ class ContentController extends Controller
                 $validated['video'] = $request->input('video_path');
             } elseif ($request->hasFile('video')) {
                 $video = $request->file('video');
-                $videoPath = Helper::uploadImage($video, 'contents');
+                $videoPath = Helper::uploadVideo($video, 'contents');
                 $validated['video'] = $videoPath;
             }
 
