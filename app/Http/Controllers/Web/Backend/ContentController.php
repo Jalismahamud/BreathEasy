@@ -25,6 +25,7 @@ class ContentController extends Controller
                 ->addColumn('category', fn($data) => $data->category?->title ?? 'N/A')
                 ->addColumn('type', fn($data) => $data->type ?? 'N/A')
                 ->addColumn('content_type', fn($data) => $data->contentType?->title ?? 'N/A')
+                ->addColumn('is_premium', fn($data) => $data->is_premium ? 'Yes' : 'No')
                 ->addColumn('action', function ($data) {
                     return '<div class="btn-group btn-group-sm" role="group">
                                 <a href="' . route('admin.content.edit', $data->id) . '" class="btn btn-primary text-white" title="Edit">
@@ -60,7 +61,8 @@ class ContentController extends Controller
             'image' => 'nullable|file',
             'video' => 'required_without:video_path|file',
             'video_path' => 'required_without:video|string',
-            'video_length' => 'nullable|string'
+            'video_length' => 'nullable|string',
+            'is_premium' => 'sometimes|boolean'
         ]);
 
         try {
@@ -103,82 +105,162 @@ class ContentController extends Controller
         return view('backend.layouts.content.edit', compact('data', 'categories', 'contentTypes'));
     }
 
+    // public function update(Request $request, $id)
+    // {
+    //     $validated = $request->validate([
+    //         'category_id' => 'required|exists:categories,id',
+    //         'content_type_id' => 'required|exists:content_types,id',
+    //         'type' => 'required|string',
+    //         'title' => 'required|string|max:255',
+    //         'description' => 'nullable|string',
+    //         'image' => 'nullable|file',
+    //         'video' => 'nullable|file',
+    //         'video_path' => 'nullable|string',
+    //         'video_length' => 'nullable|string',
+    //         'is_premium' => 'sometimes|boolean'
+    //     ]);
+
+    //     try {
+    //         $content = Content::findOrFail($id);
+
+    //         if ($request->hasFile('image')) {
+    //             if ($content->image) {
+    //                 Helper::deleteAvatar($content->image);
+    //             }
+    //             $image = $request->file('image');
+    //             $imagePath = Helper::uploadImage($image, 'contents');
+    //             $validated['image'] = $imagePath;
+    //         } else {
+    //             $validated['image'] = $content->image;
+    //         }
+
+    //         if ($request->input('video_path')) {
+    //             if ($content->video) {
+    //                 // try deleting using Helper first
+    //                 $deleted = Helper::deleteAvatar($content->video);
+    //                 if (! $deleted) {
+    //                     // try normalizing path and unlink directly
+    //                     $rel = ltrim($content->video, '/');
+    //                     $publicPath = public_path($rel);
+    //                     if (file_exists($publicPath)) {
+    //                         @unlink($publicPath);
+    //                         \Illuminate\Support\Facades\Log::info('Content update: deleted old video by public_path', ['path' => $publicPath]);
+    //                     } else {
+    //                         $storagePath = storage_path('app/public/' . $rel);
+    //                         if (file_exists($storagePath)) {
+    //                             @unlink($storagePath);
+    //                             \Illuminate\Support\Facades\Log::info('Content update: deleted old video by storage_path', ['path' => $storagePath]);
+    //                         } else {
+    //                             \Illuminate\Support\Facades\Log::warning('Content update: failed to delete old video', ['video' => $content->video]);
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //             $validated['video'] = $request->input('video_path');
+    //             $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+    //         } elseif ($request->hasFile('video')) {
+
+    //             if ($content->video) {
+    //                 Helper::deleteAvatar($content->video);
+    //             }
+    //             $video = $request->file('video');
+    //             $videoPath = Helper::uploadImage($video, 'contents');
+    //             $validated['video'] = $videoPath;
+    //             $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+    //         } else {
+    //             $validated['video'] = $content->video;
+    //         }
+
+
+
+    //         $content->update($validated);
+    //         session()->put('t-success', 'Content updated successfully');
+    //     } catch (Exception $e) {
+    //         session()->put('t-error', $e->getMessage());
+    //     }
+
+    //     return redirect()->route('admin.content.index');
+    // }
+
     public function update(Request $request, $id)
-    {
+{
+    $validated = $request->validate([
+        'category_id' => 'required|exists:categories,id',
+        'content_type_id' => 'required|exists:content_types,id',
+        'type' => 'required|string',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'image' => 'nullable|file',
+        'video' => 'nullable|file',
+        'video_path' => 'nullable|string',
+        'video_length' => 'nullable|string',
+    ]);
 
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'content_type_id' => 'required|exists:content_types,id',
-            'type' => 'required|string',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'image' => 'nullable|file',
-            'video' => 'nullable|file',
-            'video_path' => 'nullable|string',
-            'video_length' => 'nullable|string'
-        ]);
+    try {
+        $content = Content::findOrFail($id);
 
-        try {
-            $content = Content::findOrFail($id);
+        // Handle is_premium checkbox (it won't be in $validated if unchecked)
+        $validated['is_premium'] = $request->has('is_premium') ? 1 : 0;
 
-            if ($request->hasFile('image')) {
-                if ($content->image) {
-                    Helper::deleteAvatar($content->image);
-                }
-                $image = $request->file('image');
-                $imagePath = Helper::uploadImage($image, 'contents');
-                $validated['image'] = $imagePath;
-            } else {
-                $validated['image'] = $content->image;
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            if ($content->image) {
+                Helper::deleteAvatar($content->image);
             }
+            $image = $request->file('image');
+            $imagePath = Helper::uploadImage($image, 'contents');
+            $validated['image'] = $imagePath;
+        } else {
+            $validated['image'] = $content->image;
+        }
 
-            if ($request->input('video_path')) {
-                if ($content->video) {
-                    // try deleting using Helper first
-                    $deleted = Helper::deleteAvatar($content->video);
-                    if (! $deleted) {
-                        // try normalizing path and unlink directly
-                        $rel = ltrim($content->video, '/');
-                        $publicPath = public_path($rel);
-                        if (file_exists($publicPath)) {
-                            @unlink($publicPath);
-                            \Illuminate\Support\Facades\Log::info('Content update: deleted old video by public_path', ['path' => $publicPath]);
+        // Handle video upload
+        if ($request->input('video_path')) {
+            // Chunk upload path provided
+            if ($content->video) {
+                $deleted = Helper::deleteAvatar($content->video);
+                if (!$deleted) {
+                    $rel = ltrim($content->video, '/');
+                    $publicPath = public_path($rel);
+                    if (file_exists($publicPath)) {
+                        @unlink($publicPath);
+                        \Illuminate\Support\Facades\Log::info('Content update: deleted old video by public_path', ['path' => $publicPath]);
+                    } else {
+                        $storagePath = storage_path('app/public/' . $rel);
+                        if (file_exists($storagePath)) {
+                            @unlink($storagePath);
+                            \Illuminate\Support\Facades\Log::info('Content update: deleted old video by storage_path', ['path' => $storagePath]);
                         } else {
-                            $storagePath = storage_path('app/public/' . $rel);
-                            if (file_exists($storagePath)) {
-                                @unlink($storagePath);
-                                \Illuminate\Support\Facades\Log::info('Content update: deleted old video by storage_path', ['path' => $storagePath]);
-                            } else {
-                                \Illuminate\Support\Facades\Log::warning('Content update: failed to delete old video', ['video' => $content->video]);
-                            }
+                            \Illuminate\Support\Facades\Log::warning('Content update: failed to delete old video', ['video' => $content->video]);
                         }
                     }
                 }
-                $validated['video'] = $request->input('video_path');
-                $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
-            } elseif ($request->hasFile('video')) {
-
-                if ($content->video) {
-                    Helper::deleteAvatar($content->video);
-                }
-                $video = $request->file('video');
-                $videoPath = Helper::uploadImage($video, 'contents');
-                $validated['video'] = $videoPath;
-                $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
-            } else {
-                $validated['video'] = $content->video;
             }
-
-
-
-            $content->update($validated);
-            session()->put('t-success', 'Content updated successfully');
-        } catch (Exception $e) {
-            session()->put('t-error', $e->getMessage());
+            $validated['video'] = $request->input('video_path');
+            $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+        } elseif ($request->hasFile('video')) {
+            // Direct file upload
+            if ($content->video) {
+                Helper::deleteAvatar($content->video);
+            }
+            $video = $request->file('video');
+            $videoPath = Helper::uploadImage($video, 'contents');
+            $validated['video'] = $videoPath;
+            $validated['video_length'] = $request->input('video_length') ?? '00:00:00';
+        } else {
+            // Keep existing video
+            $validated['video'] = $content->video;
+            $validated['video_length'] = $content->video_length;
         }
 
-        return redirect()->route('admin.content.index');
+        $content->update($validated);
+        session()->put('t-success', 'Content updated successfully');
+    } catch (Exception $e) {
+        session()->put('t-error', $e->getMessage());
     }
+
+    return redirect()->route('admin.content.index');
+}
 
 
     public function destroy($id): JsonResponse

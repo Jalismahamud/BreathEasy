@@ -19,6 +19,7 @@ class Content extends Model
         'image',
         'video',
         'video_length',
+        'is_premium'
     ];
 
 

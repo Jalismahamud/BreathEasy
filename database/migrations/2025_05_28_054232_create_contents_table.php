@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('video')->nullable();
             $table->string('video_length')->nullable();
+            $table->boolean('is_premium')->default(false);
             $table->timestamps();
         });
     }

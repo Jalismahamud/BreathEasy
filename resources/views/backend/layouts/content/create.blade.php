@@ -102,6 +102,18 @@
                                         @enderror
                                     </div>
 
+                                    <br>
+                                    <div class="row ml-5">
+                                        <div class="form-check form-switch ">
+                                            <input  type="checkbox" role="" id="is_premium"
+                                                name="is_premium" {{ old('is_premium') ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="is_premium">
+                                                Check to mark this content as premium
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <br>
+
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Upload Image:</label>
@@ -113,20 +125,25 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                        <label class="form-label">Upload Video:</label>
-                                        <input type="file" id="video-file-input" name="video" class="dropify @error('video') is-invalid @enderror" accept="video/*" style="height: 120px;" />
-                                        <div class="d-flex align-items-center mt-2">
-                                            <button type="button" id="content-upload-btn" class="btn btn-primary btn-sm me-2">Upload Video</button>
-                                            <div id="content-upload-progress" style="display:none; width:200px; background:#f1f5f9; border-radius:6px; overflow:hidden;">
-                                                <div id="content-upload-bar" style="width:0%; height:12px; background:#22c55e;"></div>
+                                            <label class="form-label">Upload Video:</label>
+                                            <input type="file" id="video-file-input" name="video"
+                                                class="dropify @error('video') is-invalid @enderror" accept="video/*"
+                                                style="height: 120px;" />
+                                            <div class="d-flex align-items-center mt-2">
+                                                <button type="button" id="content-upload-btn"
+                                                    class="btn btn-primary btn-sm me-2">Upload Video</button>
+                                                <div id="content-upload-progress"
+                                                    style="display:none; width:200px; background:#f1f5f9; border-radius:6px; overflow:hidden;">
+                                                    <div id="content-upload-bar"
+                                                        style="width:0%; height:12px; background:#22c55e;"></div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        @error('video')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
+                                            @error('video')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
 
-                                        <input type="hidden" name="video_path" id="video_path">
-                                    </div>
+                                            <input type="hidden" name="video_path" id="video_path">
+                                        </div>
 
 
                                     </div>
@@ -205,89 +222,109 @@
 
 
     <script>
-    $(document).ready(function () {
-        const chunkSize = 2 * 1024 * 1024; // 2MB
-        const uploadUrl = "{{ route('admin.content.chunkUpload') }}";
+        $(document).ready(function() {
+            const chunkSize = 2 * 1024 * 1024; // 2MB
+            const uploadUrl = "{{ route('admin.content.chunkUpload') }}";
 
-        function showContentToast(msg, type = 'success') {
-            const t = $('<div>').text(msg).css({position:'fixed', top:'30px', right:'30px', background: type==='success' ? '#22c55e' : '#ef4444', color:'#fff', padding:'10px 16px', 'z-index':99999, 'border-radius':'6px'});
-            $('body').append(t);
-            setTimeout(()=>t.fadeOut(300, ()=>t.remove()), 3000);
-        }
-
-        $('#content-upload-btn').on('click', function () {
-            const fileInput = document.getElementById('video-file-input');
-            const file = fileInput.files[0];
-            if (!file) { showContentToast('Please select a video file first', 'error'); return; }
-
-            $(this).prop('disabled', true).text('Uploading...');
-
-            const timestamp = Date.now();
-            const random = Math.floor(Math.random() * 1000000000);
-            const ext = file.name.split('.').pop();
-            const fileName = `${timestamp}-${random}.${ext}`;
-            const totalChunks = Math.ceil(file.size / chunkSize);
-            let currentChunk = 0;
-
-            $('#content-upload-progress').show();
-
-            function uploadNext() {
-                const start = currentChunk * chunkSize;
-                const end = Math.min(file.size, start + chunkSize);
-                const blob = file.slice(start, end);
-                const formData = new FormData();
-                formData.append('_token', '{{ csrf_token() }}');
-                formData.append('file', blob);
-                formData.append('fileName', fileName);
-                formData.append('chunkIndex', currentChunk);
-                formData.append('totalChunks', totalChunks);
-
-                $.ajax({
-                    url: uploadUrl,
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (resp) {
-                        currentChunk++;
-                        const progress = Math.floor((currentChunk / totalChunks) * 100);
-                        $('#content-upload-bar').css('width', progress + '%').text(progress + '%').css({'color':'#fff','text-align':'center','font-size':'12px'});
-                        if (currentChunk < totalChunks) {
-                            uploadNext();
-                        } else {
-                            // If server returned path in response, set video_path and enable submit
-                            if (resp && resp.path) {
-                                $('#video_path').val(resp.path);
-                                // prevent the full file being submitted with the form
-                                try {
-                                    const fi = document.getElementById('video-file-input');
-                                    if (fi) {
-                                        fi.removeAttribute('name');
-                                        fi.disabled = true;
-                                    }
-                                } catch (e) { console.warn(e); }
-                                $('#content-upload-btn').prop('disabled', true).text('Uploaded');
-                                $('#content-upload-bar').css('width', '100%').text('100%');
-                                showContentToast('Upload complete');
-                                $('.content-submit').show();
-                            } else {
-                                // chunk upload finished but server did not return a path — do not show submit
-                                $('#content-upload-bar').css('width', '100%').text('100%');
-                                showContentToast('Upload complete');
-                            }
-                        }
-                    },
-                    error: function (err) {
-                        console.error(err);
-                        showContentToast('Upload failed', 'error');
-                    }
+            function showContentToast(msg, type = 'success') {
+                const t = $('<div>').text(msg).css({
+                    position: 'fixed',
+                    top: '30px',
+                    right: '30px',
+                    background: type === 'success' ? '#22c55e' : '#ef4444',
+                    color: '#fff',
+                    padding: '10px 16px',
+                    'z-index': 99999,
+                    'border-radius': '6px'
                 });
+                $('body').append(t);
+                setTimeout(() => t.fadeOut(300, () => t.remove()), 3000);
             }
 
-            uploadNext();
+            $('#content-upload-btn').on('click', function() {
+                const fileInput = document.getElementById('video-file-input');
+                const file = fileInput.files[0];
+                if (!file) {
+                    showContentToast('Please select a video file first', 'error');
+                    return;
+                }
+
+                $(this).prop('disabled', true).text('Uploading...');
+
+                const timestamp = Date.now();
+                const random = Math.floor(Math.random() * 1000000000);
+                const ext = file.name.split('.').pop();
+                const fileName = `${timestamp}-${random}.${ext}`;
+                const totalChunks = Math.ceil(file.size / chunkSize);
+                let currentChunk = 0;
+
+                $('#content-upload-progress').show();
+
+                function uploadNext() {
+                    const start = currentChunk * chunkSize;
+                    const end = Math.min(file.size, start + chunkSize);
+                    const blob = file.slice(start, end);
+                    const formData = new FormData();
+                    formData.append('_token', '{{ csrf_token() }}');
+                    formData.append('file', blob);
+                    formData.append('fileName', fileName);
+                    formData.append('chunkIndex', currentChunk);
+                    formData.append('totalChunks', totalChunks);
+
+                    $.ajax({
+                        url: uploadUrl,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(resp) {
+                            currentChunk++;
+                            const progress = Math.floor((currentChunk / totalChunks) * 100);
+                            $('#content-upload-bar').css('width', progress + '%').text(
+                                progress + '%').css({
+                                'color': '#fff',
+                                'text-align': 'center',
+                                'font-size': '12px'
+                            });
+                            if (currentChunk < totalChunks) {
+                                uploadNext();
+                            } else {
+                                // If server returned path in response, set video_path and enable submit
+                                if (resp && resp.path) {
+                                    $('#video_path').val(resp.path);
+                                    // prevent the full file being submitted with the form
+                                    try {
+                                        const fi = document.getElementById('video-file-input');
+                                        if (fi) {
+                                            fi.removeAttribute('name');
+                                            fi.disabled = true;
+                                        }
+                                    } catch (e) {
+                                        console.warn(e);
+                                    }
+                                    $('#content-upload-btn').prop('disabled', true).text(
+                                        'Uploaded');
+                                    $('#content-upload-bar').css('width', '100%').text('100%');
+                                    showContentToast('Upload complete');
+                                    $('.content-submit').show();
+                                } else {
+                                    // chunk upload finished but server did not return a path — do not show submit
+                                    $('#content-upload-bar').css('width', '100%').text('100%');
+                                    showContentToast('Upload complete');
+                                }
+                            }
+                        },
+                        error: function(err) {
+                            console.error(err);
+                            showContentToast('Upload failed', 'error');
+                        }
+                    });
+                }
+
+                uploadNext();
+            });
         });
-    });
-</script>
+    </script>
 
     <!-- Do not auto show submit on file selection. The submit will be shown only after successful chunk upload returns a path. -->
 @endpush

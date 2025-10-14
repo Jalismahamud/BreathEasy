@@ -41,6 +41,7 @@
                                                 <th>Category</th>
                                                 <th>Type</th>
                                                 <th>Content Type</th>
+                                                <th>Is Premium</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -105,6 +106,11 @@
                         {
                             data: 'content_type',
                             name: 'content_type'
+                        },
+                        {
+                            data: 'is_premium',
+                            name: 'is_premium',
+
                         },
                         {
                             data: 'action',
