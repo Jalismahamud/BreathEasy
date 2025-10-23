@@ -114,8 +114,11 @@ class WebHookController extends Controller
         }
 
         $event = $request->input('event');
+        Log::info('event data: '. json_encode($event));
         $userId = $event['app_user_id'] ?? null;
+        Log::info('userId: '. $userId);
         $eventType = $event['type'] ?? null;
+        Log::info('eventType: '. $eventType);
 
         if (!$userId || !$eventType) {
             return $this->error('Invalid payload', [], 400);
@@ -123,6 +126,7 @@ class WebHookController extends Controller
 
         $userId = preg_replace('/\D/', '', $userId);
         $user = User::find($userId);
+        Log::info('found user: '. ($user ? $user->id : 'none'));
 
         if (!$user) {
             Log::warning("User not found for webhook: $userId");
@@ -130,7 +134,9 @@ class WebHookController extends Controller
         }
 
         $productId = $event['product_id'] ?? null;
+        Log::info('productId: '. $productId);
         $newProductId = $event['new_product_id'] ?? null;
+        Log::info('newProductId: '. $newProductId);
 
         $getPackage = function ($id) {
             if (!$id) return null;
@@ -141,6 +147,7 @@ class WebHookController extends Controller
                 return 'yearly';
             }
 
+            Log::info("Unknown package: $id");
             return null;
         };
 
