@@ -159,7 +159,9 @@ class WebHookController extends Controller
                 $user->revenuecat_id = $event['app_user_id'];
                 $user->is_subscribed = true;
                 $user->updated_at = now();
+                Log::info('after initial purchase/renewal');
                 break;
+
 
             case 'PRODUCT_CHANGE':
                 $user->product_id = $newProductId;
@@ -167,6 +169,7 @@ class WebHookController extends Controller
                 $user->revenuecat_id = $event['app_user_id'];
                 $user->is_subscribed = true;
                 $user->updated_at = now();
+                Log::info('after product change');
                 break;
 
             case 'CANCELLATION':
@@ -175,6 +178,7 @@ class WebHookController extends Controller
                 $user->package = null;
                 $user->is_subscribed = false;
                 $user->updated_at = now();
+                Log::info('after cancellation/expiration');
                 break;
 
             default:
