@@ -121,6 +121,7 @@ class ApiContentController extends Controller
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
+                        'is_premium'   => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -169,6 +170,7 @@ class ApiContentController extends Controller
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
+                        'is_premium'   => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -217,6 +219,7 @@ class ApiContentController extends Controller
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
+                        'is_premium'   => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -265,6 +268,7 @@ class ApiContentController extends Controller
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
+                        'is_premium'   => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -313,6 +317,7 @@ class ApiContentController extends Controller
                 'video_duration'=> $content->video_length ?? null,
                 'level'         => $content->type,
                 'type'          => $content->contentType->title ?? null,
+                'is_premium'   => $content->is_premium,
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
@@ -359,6 +364,7 @@ class ApiContentController extends Controller
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
+                        'is_premium'   => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -396,6 +402,7 @@ class ApiContentController extends Controller
                         'video_duration'=> $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
+                        'is_premium'   => $item->is_premium,
                     ];
                 })->values(),
             ];
