@@ -7,8 +7,10 @@ use App\Models\Content;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helper\SubscriptionHelper;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ApiContentController extends Controller
 {
@@ -41,9 +43,9 @@ class ApiContentController extends Controller
         try {
 
             $query = $request->input('search');
-            $results = Content::where(function($q) use ($query) {
-                    $q->where('title', 'like', '%' . $query . '%');
-                })
+            $results = Content::where(function ($q) use ($query) {
+                $q->where('title', 'like', '%' . $query . '%');
+            })
                 ->orderByDesc('id')
                 ->limit(10)->get();
 
@@ -86,7 +88,6 @@ class ApiContentController extends Controller
 
     public function hathaYoga(Request $request)
     {
-
         try {
             $query = Content::with(['category', 'contentType'])->where('category_id', 1);
 
@@ -102,29 +103,31 @@ class ApiContentController extends Controller
 
             $results = $query->latest()->get();
 
-            if ($results->isEmpty()) {
-                return $this->success([
-                    'category' => 'Hatha Yoga',
-                    'contents' => []
-                ], 'No content found.', 200);
+
+            $plan = SubscriptionHelper::getUserPlan();
+            if ($plan === 'basic') {
+                $results = $results->take(3);
             }
 
             $formatted = [
-                'category' => $results->first()->category->title ?? 'Hatha Yoga',
+                'category' => 'Hatha Yoga',
                 'contents' => $results->map(function ($item) {
+                    $canAccess = SubscriptionHelper::canAccess($item->is_premium);
                     return [
                         'id'            => $item->id,
                         'title'         => $item->title,
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
-                        'video'         => $item->video ? url($item->video) : null,
+                        'video'         => $canAccess ? ($item->video ? url($item->video) : null) : null,
+                        'is_locked'     => !$canAccess,
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
-                        'is_premium'   => $item->is_premium,
+                        'is_premium'    => $item->is_premium,
                     ];
                 })->values(),
             ];
+
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
         } catch (Exception $e) {
@@ -136,8 +139,7 @@ class ApiContentController extends Controller
     public function vinyasaYoga(Request $request)
     {
         try {
-            $query = Content::with(['category', 'contentType'])
-                ->where('category_id', 2);
+            $query = Content::with(['category', 'contentType'])->where('category_id', 2);
 
             if ($request->filled('level') && $request->level !== 'all') {
                 $query->where('type', $request->level);
@@ -151,26 +153,27 @@ class ApiContentController extends Controller
 
             $results = $query->latest()->get();
 
-            if ($results->isEmpty()) {
-                return $this->success([
-                    'category' => 'Vinyasa Yoga',
-                    'contents' => []
-                ], 'No content found.', 200);
+
+            $plan = SubscriptionHelper::getUserPlan();
+            if ($plan === 'basic') {
+                $results = $results->take(3);
             }
 
             $formatted = [
-                'category' => $results->first()->category->title ?? 'Vinyasa Yoga',
+                'category' => 'Vinyasa Yoga',
                 'contents' => $results->map(function ($item) {
+                    $canAccess = SubscriptionHelper::canAccess($item->is_premium);
                     return [
                         'id'            => $item->id,
                         'title'         => $item->title,
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
-                        'video'         => $item->video ? url($item->video) : null,
+                        'video'         => $canAccess ? ($item->video ? url($item->video) : null) : null,
+                        'is_locked'     => !$canAccess,
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
-                        'is_premium'   => $item->is_premium,
+                        'is_premium'    => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -185,8 +188,7 @@ class ApiContentController extends Controller
     public function restorativeYoga(Request $request)
     {
         try {
-            $query = Content::with(['category', 'contentType'])
-                ->where('category_id', 3);
+            $query = Content::with(['category', 'contentType'])->where('category_id', 3);
 
             if ($request->filled('level') && $request->level !== 'all') {
                 $query->where('type', $request->level);
@@ -200,26 +202,26 @@ class ApiContentController extends Controller
 
             $results = $query->latest()->get();
 
-            if ($results->isEmpty()) {
-                return $this->success([
-                    'category' => 'Restorative Yoga',
-                    'contents' => []
-                ], 'No content found.', 200);
+            $plan = SubscriptionHelper::getUserPlan();
+            if ($plan === 'basic') {
+                $results = $results->take(3);
             }
 
             $formatted = [
-                'category' => $results->first()->category->title ?? 'Restorative Yoga',
+                'category' => 'Restorative Yoga',
                 'contents' => $results->map(function ($item) {
+                    $canAccess = SubscriptionHelper::canAccess($item->is_premium);
                     return [
                         'id'            => $item->id,
                         'title'         => $item->title,
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
-                        'video'         => $item->video ? url($item->video) : null,
+                        'video'         => $canAccess ? ($item->video ? url($item->video) : null) : null,
+                        'is_locked'     => !$canAccess,
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
-                        'is_premium'   => $item->is_premium,
+                        'is_premium'    => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -234,8 +236,7 @@ class ApiContentController extends Controller
     public function yogicBits(Request $request)
     {
         try {
-            $query = Content::with(['category', 'contentType'])
-                ->where('category_id', 4);
+            $query = Content::with(['category', 'contentType'])->where('category_id', 4);
 
             if ($request->filled('level') && $request->level !== 'all') {
                 $query->where('type', $request->level);
@@ -249,26 +250,26 @@ class ApiContentController extends Controller
 
             $results = $query->latest()->get();
 
-            if ($results->isEmpty()) {
-                return $this->success([
-                    'category' => 'Yogic bits',
-                    'contents' => []
-                ], 'No content found.', 200);
+            $plan = SubscriptionHelper::getUserPlan();
+            if ($plan === 'basic') {
+                $results = $results->take(3);
             }
 
             $formatted = [
-                'category' => $results->first()->category->title ?? 'Yogic bits',
+                'category' => 'Yogic Bits',
                 'contents' => $results->map(function ($item) {
+                    $canAccess = SubscriptionHelper::canAccess($item->is_premium);
                     return [
                         'id'            => $item->id,
                         'title'         => $item->title,
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
-                        'video'         => $item->video ? url($item->video) : null,
+                        'video'         => $canAccess ? ($item->video ? url($item->video) : null) : null,
+                        'is_locked'     => !$canAccess,
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
-                        'is_premium'   => $item->is_premium,
+                        'is_premium'    => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -280,7 +281,6 @@ class ApiContentController extends Controller
         }
     }
 
-
     public function yogicBitsDetails(Request $request, $id)
     {
         try {
@@ -290,9 +290,14 @@ class ApiContentController extends Controller
                 return $this->error([], 'Content not found or invalid category.', 404);
             }
 
-             if (auth('api')->check()) {
-                $userId = auth('api')->id();
+            $canAccess = SubscriptionHelper::canAccess($content->is_premium);
 
+            if (!$canAccess) {
+                return $this->error([], 'You need a premium plan to view this content.', 403);
+            }
+
+            if (Auth::check()) {
+                $userId = Auth::id();
 
                 $hasViewed = DB::table('pose_learns')
                     ->where('user_id', $userId)
@@ -314,10 +319,10 @@ class ApiContentController extends Controller
                 'description'   => $content->description,
                 'image'         => $content->image ? url($content->image) : null,
                 'video'         => $content->video ? url($content->video) : null,
-                'video_duration'=> $content->video_length ?? null,
+                'video_duration' => $content->video_length ?? null,
                 'level'         => $content->type,
                 'type'          => $content->contentType->title ?? null,
-                'is_premium'   => $content->is_premium,
+                'is_premium'    => $content->is_premium,
             ];
 
             return $this->success($formatted, 'Content fetched successfully.', 200);
@@ -330,8 +335,7 @@ class ApiContentController extends Controller
     public function guidedMeditation(Request $request)
     {
         try {
-            $query = Content::with(['category', 'contentType'])
-                ->where('category_id', 5);
+            $query = Content::with(['category', 'contentType'])->where('category_id', 5);
 
             if ($request->filled('level') && $request->level !== 'all') {
                 $query->where('type', $request->level);
@@ -345,26 +349,26 @@ class ApiContentController extends Controller
 
             $results = $query->latest()->get();
 
-            if ($results->isEmpty()) {
-                return $this->success([
-                    'category' => 'Guided Meditation',
-                    'contents' => []
-                ], 'No content found.', 200);
+            $plan = SubscriptionHelper::getUserPlan();
+            if ($plan === 'basic') {
+                $results = $results->take(3);
             }
 
             $formatted = [
-                'category' => $results->first()->category->title ?? 'Guided Meditation',
+                'category' => 'Guided Meditation',
                 'contents' => $results->map(function ($item) {
+                    $canAccess = SubscriptionHelper::canAccess($item->is_premium);
                     return [
                         'id'            => $item->id,
                         'title'         => $item->title,
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
-                        'video'         => $item->video ? url($item->video) : null,
+                        'video'         => $canAccess ? ($item->video ? url($item->video) : null) : null,
+                        'is_locked'     => !$canAccess,
                         'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
-                        'is_premium'   => $item->is_premium,
+                        'is_premium'    => $item->is_premium,
                     ];
                 })->values(),
             ];
@@ -376,7 +380,6 @@ class ApiContentController extends Controller
         }
     }
 
-
     public function latestGuidedMeditation(Request $request)
     {
         try {
@@ -386,23 +389,21 @@ class ApiContentController extends Controller
                 ->take(4)
                 ->get();
 
-            if ($results->isEmpty()) {
-                return $this->error([], 'No content found.', 404);
-            }
-
             $formatted = [
-                'category' => $results->first()->category->title ?? 'Guided Meditation',
+                'category' => 'Guided Meditation',
                 'contents' => $results->map(function ($item) {
+                    $canAccess = SubscriptionHelper::canAccess($item->is_premium);
                     return [
                         'id'            => $item->id,
                         'title'         => $item->title,
                         'description'   => $item->description,
                         'image'         => $item->image ? url($item->image) : null,
-                        'video'         => $item->video ? url($item->video) : null,
-                        'video_duration'=> $item->video_length ?? null,
+                        'video'         => $canAccess ? ($item->video ? url($item->video) : null) : null,
+                        'is_locked'     => !$canAccess,
+                        'video_duration' => $item->video_length ?? null,
                         'level'         => $item->type,
                         'type'          => $item->contentType->title ?? null,
-                        'is_premium'   => $item->is_premium,
+                        'is_premium'    => $item->is_premium,
                     ];
                 })->values(),
             ];
